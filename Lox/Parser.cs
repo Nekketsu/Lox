@@ -49,10 +49,79 @@ namespace CraftingInterpreters.Lox
 
         private Stmt Statement()
         {
+            if (Match(FOR)) { return ForStatement(); }
+            if (Match(IF)) { return IfStatement(); }
             if (Match(PRINT)) { return PrintStatement(); }
+            if (Match(WHILE)) { return WhileStatement(); }
             if (Match(LEFT_BRACE)) { return new Stmt.Block(Block()); }
 
             return ExpressionStatement();
+        }
+
+        private Stmt ForStatement()
+        {
+            Consume(LEFT_PAREN, "Expect '(' after 'for'.");
+
+            Stmt initializer;
+            if (Match(SEMICOLON))
+            {
+                initializer = null;
+            }
+            else if (Match(VAR))
+            {
+                initializer = VarDeclaration();
+            }
+            else
+            {
+                initializer = ExpressionStatement();
+            }
+
+            Expr condition = null;
+            if (!Check(SEMICOLON))
+            {
+                condition = Expression();
+            }
+            Consume(SEMICOLON, "Expect ';' after loop condition.");
+
+            Expr increment = null;
+            if (!Check(RIGHT_PAREN))
+            {
+                increment = Expression();
+            }
+            Consume(RIGHT_PAREN, "Expect ')' after for clauses.");
+
+            Stmt body = Statement();
+
+            if (increment != null)
+            {
+                body = new Stmt.Block(new [] { body, new Stmt.Expression(increment) });
+            }
+
+            if (condition == null) { condition = new Expr.Literal(true); }
+            body = new Stmt.While(condition, body);
+
+            if (initializer != null)
+            {
+                body = new Stmt.Block(new [] { initializer, body });
+            }
+
+            return body;
+        }
+
+        private Stmt IfStatement()
+        {
+            Consume(LEFT_PAREN, "Expect '(' after 'if'.");
+            var condition = Expression();
+            Consume(RIGHT_PAREN, "Expect ')' after if condition.");
+
+            var thenBranch = Statement();
+            Stmt elseBranch = null;
+            if (Match(ELSE))
+            {
+                elseBranch = Statement();
+            }
+
+            return new Stmt.If(condition, thenBranch, elseBranch);
         }
 
         private Stmt PrintStatement()
@@ -74,6 +143,16 @@ namespace CraftingInterpreters.Lox
 
             Consume(SEMICOLON, "Expect ';' after variable declaration.");
             return new Stmt.Var(name, initializer);
+        }
+
+        private Stmt WhileStatement()
+        {
+            Consume(LEFT_PAREN, "Expect '(' after 'while'.");
+            var condition  = Expression();
+            Consume(RIGHT_PAREN, "Expect ')' after condition.");
+            var body = Statement();
+
+            return new Stmt.While(condition, body);
         }
 
         private Stmt ExpressionStatement()
@@ -98,7 +177,7 @@ namespace CraftingInterpreters.Lox
 
         private Expr Assignment()
         {
-            var expr = Equality();
+            var expr = Or();
 
             if (Match(EQUAL))
             {
@@ -112,6 +191,34 @@ namespace CraftingInterpreters.Lox
                 }
 
                 Error(equals, "Invalid assignment target.");
+            }
+
+            return expr;
+        }
+
+        private Expr Or()
+        {
+            var expr = And();
+
+            while (Match(OR))
+            {
+                var @operator = Previous();
+                var right = And();
+                expr = new Expr.Logical(expr, @operator, right);
+            }
+
+            return expr;
+        }
+
+        private Expr And()
+        {
+            var expr = Equality();
+
+            while (Match(AND))
+            {
+                var @operator = Previous();
+                var right = Equality();
+                expr = new Expr.Logical(expr, @operator, right);
             }
 
             return expr;

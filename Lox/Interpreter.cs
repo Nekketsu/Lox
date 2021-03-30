@@ -28,6 +28,22 @@ namespace CraftingInterpreters.Lox
             return expr.Value;
         }
 
+        public object VisitLogicalExpr(Expr.Logical expr)
+        {
+            var left = Evaluate(expr.Left);
+
+            if (expr.Operator.Type == TokenType.OR)
+            {
+                if (IsTruthy(left)) { return left; }
+            }
+            else
+            {
+                if (!IsTruthy(left)) { return false; }
+            }
+
+            return Evaluate(expr.Right);
+        }
+
         public object VisitGroupingExpr(Expr.Grouping expr)
         {
             return Evaluate(expr.Expression);
@@ -139,6 +155,19 @@ namespace CraftingInterpreters.Lox
             return null;
         }
 
+        public object VisitIfStmt(Stmt.If stmt)
+        {
+            if (IsTruthy(Evaluate(stmt.Condition)))
+            {
+                Execute(stmt.ThenBranch);
+            }
+            else if (stmt.ElseBranch != null)
+            {
+                Execute(stmt.ElseBranch);
+            }
+            return null;
+        }
+
         public object VisitPrintStmt(Stmt.Print stmt)
         {
             var value = Evaluate(stmt.Expr);
@@ -155,6 +184,16 @@ namespace CraftingInterpreters.Lox
             }
 
             environment.Define(stmt.Name.Lexeme, value);
+            return null;
+        }
+
+        public object VisitWhileStmt(Stmt.While stmt)
+        {
+            while (IsTruthy(Evaluate(stmt.Condition)))
+            {
+                Execute(stmt.Body);
+            }
+
             return null;
         }
 

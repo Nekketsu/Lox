@@ -10,6 +10,11 @@ namespace CraftingInterpreters.Lox
             return expr.Accept(this);
         }
 
+        public string VisitAssignExpr(Expr.Assign expr)
+        {
+            throw new NotImplementedException();
+        }
+
         public string VisitBinaryExpr(Expr.Binary expr)
         {
             return Parenthesize(expr.Operator.Lexeme, expr.Left, expr.Right);
@@ -29,6 +34,11 @@ namespace CraftingInterpreters.Lox
         public string VisitUnaryExpr(Expr.Unary expr)
         {
             return Parenthesize(expr.Operator.Lexeme, expr.Right);
+        }
+
+        public string VisitVariableExpr(Expr.Variable expr)
+        {
+            throw new NotImplementedException();
         }
 
         private string Parenthesize(string name, params Expr[] exprs)

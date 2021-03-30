@@ -16,21 +16,105 @@ namespace CraftingInterpreters.Lox
             this.tokens = tokens;
         }
 
-        public Expr Parse()
+        public List<Stmt> Parse()
         {
-            try
+            var statements = new List<Stmt>();
+            while (!IsAtEnd())
             {
-                return Expression();
+                statements.Add(Declaration());
             }
-            catch (ParseError error)
-            {
-                return null;
-            }
+            
+            return statements;
         }
 
         private Expr Expression()
         {
-            return Equality();
+            return Assignment();
+        }
+
+        private Stmt Declaration()
+        {
+            try
+            {
+                if (Match(VAR)) { return VarDeclaration(); }
+
+                return Statement();
+            }
+            catch (ParseError error)
+            {
+                Synchronize();
+                return null;
+            }
+        }
+
+        private Stmt Statement()
+        {
+            if (Match(PRINT)) { return PrintStatement(); }
+            if (Match(LEFT_BRACE)) { return new Stmt.Block(Block()); }
+
+            return ExpressionStatement();
+        }
+
+        private Stmt PrintStatement()
+        {
+            var value = Expression();
+            Consume(SEMICOLON, "Expect ';' after value.");
+            return new Stmt.Print(value);
+        }
+
+        private Stmt VarDeclaration()
+        {
+            var name = Consume(IDENTIFIER, "Expect variable name.");
+
+            Expr initializer = null;
+            if (Match(EQUAL))
+            {
+                initializer = Expression();
+            }
+
+            Consume(SEMICOLON, "Expect ';' after variable declaration.");
+            return new Stmt.Var(name, initializer);
+        }
+
+        private Stmt ExpressionStatement()
+        {
+            var expr = Expression();
+            Consume(SEMICOLON, "Expect ';' after expression.");
+            return new Stmt.Expression(expr);
+        }
+
+        private Stmt[] Block()
+        {
+            var statements = new List<Stmt>();
+
+            while (!Check(RIGHT_BRACE) && !IsAtEnd())
+            {
+                statements.Add(Declaration());
+            }
+
+            Consume(RIGHT_BRACE, "Expect '}' after block.");
+            return statements.ToArray();
+        }
+
+        private Expr Assignment()
+        {
+            var expr = Equality();
+
+            if (Match(EQUAL))
+            {
+                var equals = Previous();
+                var value = Assignment();
+
+                if (expr is Expr.Variable variableExpr)
+                {
+                    var name = variableExpr.Name;
+                    return new Expr.Assign(name, value);
+                }
+
+                Error(equals, "Invalid assignment target.");
+            }
+
+            return expr;
         }
 
         private Expr Equality()
@@ -110,6 +194,11 @@ namespace CraftingInterpreters.Lox
             if (Match(NUMBER, STRING))
             {
                 return new Expr.Literal(Previous().Literal);
+            }
+
+            if (Match(IDENTIFIER))
+            {
+                return new Expr.Variable(Previous());
             }
 
             if (Match(LEFT_PAREN))

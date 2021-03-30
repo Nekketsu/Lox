@@ -15,7 +15,7 @@ namespace CraftingInterpreters.Lox
             if (args.Length > 1)
             {
                 Console.WriteLine("Usage: Lox [script]");
-                Environment.Exit(64);
+                System.Environment.Exit(64);
             }
             else if (args.Length == 1)
             {
@@ -36,8 +36,8 @@ namespace CraftingInterpreters.Lox
             Run(source);
 
             // Indicate an error in the exit code
-            if (hadError) { Environment.Exit(65); }
-            if (hadRuntimeError) { Environment.Exit(70); }
+            if (hadError) { System.Environment.Exit(65); }
+            if (hadRuntimeError) { System.Environment.Exit(70); }
         }
         
         private static void RunPrompt()
@@ -54,26 +54,15 @@ namespace CraftingInterpreters.Lox
 
         private static void Run(string source)
         {
-            /* var scanner = new Scanner(source); */
-            /* var tokens = scanner.ScanTokens(); */
-
-            /* // For now just print the tokens. */
-            /* foreach (var token in tokens) */
-            /* { */
-            /*     Console.WriteLine(token); */
-            /* } */
-
             var scanner = new Scanner(source);
             var tokens = scanner.ScanTokens();
             var parser = new Parser(tokens);
-            var expression = parser.Parse();
+            var statements = parser.Parse();
 
             // Stop if there was a syntax error.
             if (hadError) { return; }
 
-            /* Console.WriteLine(new AstPrinter().Print(expression)); */
-
-            interpreter.Interpret(expression);
+            interpreter.Interpret(statements);
         }
 
         public static void Error(int line, string message)

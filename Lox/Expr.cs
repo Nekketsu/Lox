@@ -4,10 +4,29 @@ namespace CraftingInterpreters.Lox
     {
         public interface Visitor<R>
         {
+            R VisitAssignExpr(Assign expr);
             R VisitBinaryExpr(Binary expr);
             R VisitGroupingExpr(Grouping expr);
             R VisitLiteralExpr(Literal expr);
             R VisitUnaryExpr(Unary expr);
+            R VisitVariableExpr(Variable expr);
+        }
+
+        public class Assign : Expr
+        {
+            public Token Name { get; }
+            public Expr Value { get; }
+
+            public Assign(Token name, Expr value)
+            {
+                Name = name;
+                Value = value;
+            }
+
+            public override R Accept<R>(Visitor<R> visitor)
+            {
+                return visitor.VisitAssignExpr(this);
+            }
         }
 
         public class Binary : Expr
@@ -73,6 +92,21 @@ namespace CraftingInterpreters.Lox
             public override R Accept<R>(Visitor<R> visitor)
             {
                 return visitor.VisitUnaryExpr(this);
+            }
+        }
+
+        public class Variable : Expr
+        {
+            public Token Name { get; }
+
+            public Variable(Token name)
+            {
+                Name = name;
+            }
+
+            public override R Accept<R>(Visitor<R> visitor)
+            {
+                return visitor.VisitVariableExpr(this);
             }
         }
 

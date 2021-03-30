@@ -1,16 +1,21 @@
 using System;
+using System.Collections.Generic;
 using static CraftingInterpreters.Lox.TokenType;
 
 namespace CraftingInterpreters.Lox
 {
-    public class Interpreter : Expr.Visitor<object>
+    public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
     {
-        public void Interpret(Expr expression)
+        private CraftingInterpreters.Lox.Environment environment = new CraftingInterpreters.Lox.Environment();
+
+        public void Interpret(List<Stmt> statements)
         {
             try
             {
-                var value = Evaluate(expression);
-                Console.WriteLine(Stringify(value));
+                foreach (var statement in statements)
+                {
+                    Execute(statement);
+                }
             }
             catch (RuntimeError error)
             {
@@ -43,6 +48,11 @@ namespace CraftingInterpreters.Lox
 
             // Unreachable.
             return null;
+        }
+
+        public object VisitVariableExpr(Expr.Variable expr)
+        {
+            return environment.Get(expr.Name);
         }
 
         private void CheckNumberOperand(Token @operator, object operand)
@@ -92,6 +102,67 @@ namespace CraftingInterpreters.Lox
         private object Evaluate(Expr expr)
         {
             return expr.Accept(this);
+        }
+
+        private void Execute(Stmt stmt)
+        {
+            stmt.Accept(this);
+        }
+        
+        private void ExecuteBlock(Stmt[] statements, Environment environment)
+        {
+            var previous = this.environment;
+            try
+            {
+                this.environment = environment;
+
+                foreach (var statement in statements)
+                {
+                    Execute(statement);
+                }
+            }
+            finally
+            {
+                this.environment = previous;
+            }
+        }
+
+        public object VisitBlockStmt(Stmt.Block stmt)
+        {
+            ExecuteBlock(stmt.Statements, new CraftingInterpreters.Lox.Environment(environment));
+            return null;
+        }
+
+        public object VisitExpressionStmt(Stmt.Expression stmt)
+        {
+            Evaluate(stmt.Expr);
+            return null;
+        }
+
+        public object VisitPrintStmt(Stmt.Print stmt)
+        {
+            var value = Evaluate(stmt.Expr);
+            Console.WriteLine(Stringify(value));
+            return null;
+        }
+
+        public object VisitVarStmt(Stmt.Var stmt)
+        {
+            object value = null;
+            if (stmt.Initializer != null)
+            {
+                value = Evaluate(stmt.Initializer);
+            }
+
+            environment.Define(stmt.Name.Lexeme, value);
+            return null;
+        }
+
+        public object VisitAssignExpr(Expr.Assign expr)
+        {
+            var value = Evaluate(expr.Value);
+            environment.Assign(expr.Name, value);
+            return value;
         }
         
         public object VisitBinaryExpr(Expr.Binary expr)

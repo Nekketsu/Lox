@@ -36,6 +36,7 @@ namespace CraftingInterpreters.Lox
         {
             try
             {
+                if (Match(FUN)) { return FunctionDeclaration("function"); }
                 if (Match(VAR)) { return VarDeclaration(); }
 
                 return Statement();
@@ -52,6 +53,7 @@ namespace CraftingInterpreters.Lox
             if (Match(FOR)) { return ForStatement(); }
             if (Match(IF)) { return IfStatement(); }
             if (Match(PRINT)) { return PrintStatement(); }
+            if (Match(RETURN)) { return ReturnStatement(); }
             if (Match(WHILE)) { return WhileStatement(); }
             if (Match(LEFT_BRACE)) { return new Stmt.Block(Block()); }
 
@@ -131,6 +133,19 @@ namespace CraftingInterpreters.Lox
             return new Stmt.Print(value);
         }
 
+        private Stmt ReturnStatement()
+        {
+            var keyword = Previous();
+            Expr value = null;
+            if (!Check(SEMICOLON))
+            {
+                value = Expression();
+            }
+
+            Consume(SEMICOLON, "Expect ';' after return value.");
+            return new Stmt.Return(keyword, value);
+        }
+
         private Stmt VarDeclaration()
         {
             var name = Consume(IDENTIFIER, "Expect variable name.");
@@ -160,6 +175,30 @@ namespace CraftingInterpreters.Lox
             var expr = Expression();
             Consume(SEMICOLON, "Expect ';' after expression.");
             return new Stmt.Expression(expr);
+        }
+
+        private Stmt.Function FunctionDeclaration(string kind)
+        {
+            var name = Consume(IDENTIFIER, $"Expect {kind} name.");
+            Consume(LEFT_PAREN, $"Expect '(' after {kind} name.");
+            var parameters = new List<Token>();
+            if (!Check(RIGHT_PAREN))
+            {
+                do
+                {
+                    if (parameters.Count >= 255)
+                    {
+                        Error(Peek(), "Can'tave more than 255 parameters.");
+                    }
+
+                    parameters.Add(Consume(IDENTIFIER, "Expect parameter name."));
+                } while (Match(COMMA));
+            }
+            Consume(RIGHT_PAREN, "Expect ')' after parameters.");
+
+            Consume(LEFT_BRACE, $"Expect '{{' before {kind} body.");
+            var body = Block();
+            return new Stmt.Function(name, parameters.ToArray(), body);
         }
 
         private Stmt[] Block()
@@ -289,7 +328,46 @@ namespace CraftingInterpreters.Lox
                 return new Expr.Unary(@operator, right);
             }
 
-            return Primary();
+            return Call();
+        }
+
+        private Expr FinishCall(Expr callee)
+        {
+            var arguments = new List<Expr>();
+            if (!Check(RIGHT_PAREN))
+            {
+                do
+                {
+                    if (arguments.Count >= 255)
+                    {
+                        Error(Peek(), "Can'tave more than 255 arguments.");
+                    }
+                    arguments.Add(Expression());
+                } while (Match(COMMA));
+            }
+
+            var paren = Consume(RIGHT_PAREN, "Expect ')' after arguments.");
+
+            return new Expr.Call(callee, paren, arguments.ToArray());
+        }
+
+        private Expr Call()
+        {
+            var expr = Primary();
+
+            while (true)
+            {
+                if (Match(LEFT_PAREN))
+                {
+                    expr = FinishCall(expr);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return expr;
         }
 
         private Expr Primary()

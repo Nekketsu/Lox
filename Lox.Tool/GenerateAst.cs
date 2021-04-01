@@ -20,6 +20,7 @@ namespace Lox.Tool
             {
                 "Assign   : Token name, Expr value",
                 "Binary   : Expr left, Token operator, Expr right",
+                "Call     : Expr callee, Token paren, Expr[] arguments",
                 "Grouping : Expr expression",
                 "Literal  : object value",
                 "Logical  : Expr left, Token operator, Expr right",
@@ -31,8 +32,10 @@ namespace Lox.Tool
             {
                 "Block      : Stmt[] statements",
                 "Expression : Expr expr",
+                "Function   : Token name, Token[] params, Stmt[] body",
                 "If         : Expr condition, Stmt thenBranch, Stmt elseBranch",
                 "Print      : Expr expr",
+                "Return     : Token keyword, Expr value",
                 "Var        : Token name, Expr initializer",
                 "While      : Expr condition, Stmt body"
             });
@@ -135,7 +138,8 @@ namespace Lox.Tool
         {
             var keywords = new []
             {
-                "operator"
+                "operator",
+                "params"
             };
 
             if (keywords.Contains(name))

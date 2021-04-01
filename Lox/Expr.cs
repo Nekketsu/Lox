@@ -6,6 +6,7 @@ namespace CraftingInterpreters.Lox
         {
             R VisitAssignExpr(Assign expr);
             R VisitBinaryExpr(Binary expr);
+            R VisitCallExpr(Call expr);
             R VisitGroupingExpr(Grouping expr);
             R VisitLiteralExpr(Literal expr);
             R VisitLogicalExpr(Logical expr);
@@ -46,6 +47,25 @@ namespace CraftingInterpreters.Lox
             public override R Accept<R>(Visitor<R> visitor)
             {
                 return visitor.VisitBinaryExpr(this);
+            }
+        }
+
+        public class Call : Expr
+        {
+            public Expr Callee { get; }
+            public Token Paren { get; }
+            public Expr[] Arguments { get; }
+
+            public Call(Expr callee, Token paren, Expr[] arguments)
+            {
+                Callee = callee;
+                Paren = paren;
+                Arguments = arguments;
+            }
+
+            public override R Accept<R>(Visitor<R> visitor)
+            {
+                return visitor.VisitCallExpr(this);
             }
         }
 

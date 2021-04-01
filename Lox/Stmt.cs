@@ -6,8 +6,10 @@ namespace CraftingInterpreters.Lox
         {
             R VisitBlockStmt(Block stmt);
             R VisitExpressionStmt(Expression stmt);
+            R VisitFunctionStmt(Function stmt);
             R VisitIfStmt(If stmt);
             R VisitPrintStmt(Print stmt);
+            R VisitReturnStmt(Return stmt);
             R VisitVarStmt(Var stmt);
             R VisitWhileStmt(While stmt);
         }
@@ -42,6 +44,25 @@ namespace CraftingInterpreters.Lox
             }
         }
 
+        public class Function : Stmt
+        {
+            public Token Name { get; }
+            public Token[] Params { get; }
+            public Stmt[] Body { get; }
+
+            public Function(Token name, Token[] @params, Stmt[] body)
+            {
+                Name = name;
+                Params = @params;
+                Body = body;
+            }
+
+            public override R Accept<R>(Visitor<R> visitor)
+            {
+                return visitor.VisitFunctionStmt(this);
+            }
+        }
+
         public class If : Stmt
         {
             public Expr Condition { get; }
@@ -73,6 +94,23 @@ namespace CraftingInterpreters.Lox
             public override R Accept<R>(Visitor<R> visitor)
             {
                 return visitor.VisitPrintStmt(this);
+            }
+        }
+
+        public class Return : Stmt
+        {
+            public Token Keyword { get; }
+            public Expr Value { get; }
+
+            public Return(Token keyword, Expr value)
+            {
+                Keyword = keyword;
+                Value = value;
+            }
+
+            public override R Accept<R>(Visitor<R> visitor)
+            {
+                return visitor.VisitReturnStmt(this);
             }
         }
 

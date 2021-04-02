@@ -5,7 +5,7 @@ namespace CraftingInterpreters.Lox
     public class Environment
     {
         private readonly Environment enclosing;
-        private readonly Dictionary<string, object> values = new Dictionary<string, object>();
+        public Dictionary<string, object> Values { get; } = new Dictionary<string, object>();
 
         public Environment()
         {
@@ -19,7 +19,7 @@ namespace CraftingInterpreters.Lox
 
         public object Get(Token name)
         {
-            if (values.TryGetValue(name.Lexeme, out var value))
+            if (Values.TryGetValue(name.Lexeme, out var value))
             {
                 return value;
             }
@@ -31,9 +31,9 @@ namespace CraftingInterpreters.Lox
 
         public void Assign(Token name, object value)
         {
-            if (values.ContainsKey(name.Lexeme))
+            if (Values.ContainsKey(name.Lexeme))
             {
-                values[name.Lexeme] = value;
+                Values[name.Lexeme] = value;
                 return;
             }
 
@@ -48,7 +48,28 @@ namespace CraftingInterpreters.Lox
 
         public void Define(string name, object value)
         {
-            values.Add(name, value);
+            Values[name] = value;
+        }
+
+        private Environment Ancestor(int distance)
+        {
+            var environment = this;
+            for (var i = 0; i < distance; i++)
+            {
+                environment = environment.enclosing;
+            }
+
+            return environment;
+        }
+
+        public object GetAt(int distance, string name)
+        {
+            return Ancestor(distance).Values[name];
+        }
+
+        public void AssignAt(int distance, Token name, object value)
+        {
+            Ancestor(distance).Values[name.Lexeme] = value;
         }
     }
 }

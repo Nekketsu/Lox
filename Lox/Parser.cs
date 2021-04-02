@@ -16,7 +16,7 @@ namespace CraftingInterpreters.Lox
             this.tokens = tokens;
         }
 
-        public List<Stmt> Parse()
+        public Stmt[] Parse()
         {
             var statements = new List<Stmt>();
             while (!IsAtEnd())
@@ -24,7 +24,7 @@ namespace CraftingInterpreters.Lox
                 statements.Add(Declaration());
             }
             
-            return statements;
+            return statements.ToArray();
         }
 
         private Expr Expression()

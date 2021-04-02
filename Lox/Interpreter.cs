@@ -6,17 +6,18 @@ namespace CraftingInterpreters.Lox
 {
     public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
     {
-        public CraftingInterpreters.Lox.Environment Globals { get; } = new CraftingInterpreters.Lox.Environment();
+        private CraftingInterpreters.Lox.Environment globals { get; } = new CraftingInterpreters.Lox.Environment();
         private CraftingInterpreters.Lox.Environment environment;
+        private Dictionary<Expr, int> locals = new Dictionary<Expr, int>();
 
         public Interpreter()
         {
-            environment = Globals;
+            environment = globals;
 
-            Globals.Define("Clock", new Clock());
+            globals.Define("Clock", new Clock());
         }
 
-        public void Interpret(List<Stmt> statements)
+        public void Interpret(Stmt[] statements)
         {
             try
             {
@@ -76,7 +77,19 @@ namespace CraftingInterpreters.Lox
 
         public object VisitVariableExpr(Expr.Variable expr)
         {
-            return environment.Get(expr.Name);
+            return LookUpVariable(expr.Name, expr);
+        }
+
+        private object LookUpVariable(Token name, Expr expr)
+        {
+            if (locals.TryGetValue(expr, out var distance))
+            {
+                return environment.GetAt(distance, name.Lexeme);
+            }
+            else
+            {
+                return globals.Get(name);
+            }
         }
 
         private void CheckNumberOperand(Token @operator, object operand)
@@ -131,6 +144,11 @@ namespace CraftingInterpreters.Lox
         private void Execute(Stmt stmt)
         {
             stmt.Accept(this);
+        }
+
+        public void Resolve(Expr expr, int depth)
+        {
+            locals[expr] = depth;
         }
         
         public void ExecuteBlock(Stmt[] statements, Environment environment)
@@ -223,7 +241,15 @@ namespace CraftingInterpreters.Lox
         public object VisitAssignExpr(Expr.Assign expr)
         {
             var value = Evaluate(expr.Value);
-            environment.Assign(expr.Name, value);
+            
+            if (locals.TryGetValue(expr, out var distance))
+            {
+                environment.AssignAt(distance, expr.Name, value);
+            }
+            else
+            {
+                globals.Assign(expr.Name, value);
+            }
             return value;
         }
         

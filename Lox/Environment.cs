@@ -4,17 +4,17 @@ namespace CraftingInterpreters.Lox
 {
     public class Environment
     {
-        private readonly Environment enclosing;
+        public Environment Enclosing { get; }
         public Dictionary<string, object> Values { get; } = new Dictionary<string, object>();
 
         public Environment()
         {
-            enclosing = null;
+            Enclosing = null;
         }
 
         public Environment(Environment enclosing)
         {
-            this.enclosing = enclosing;
+            this.Enclosing = enclosing;
         }
 
         public object Get(Token name)
@@ -24,7 +24,7 @@ namespace CraftingInterpreters.Lox
                 return value;
             }
 
-            if (enclosing != null) { return enclosing.Get(name); }
+            if (Enclosing != null) { return Enclosing.Get(name); }
 
             throw new RuntimeError(name, $"Undefined variable '{name.Lexeme}'.");
         }
@@ -37,9 +37,9 @@ namespace CraftingInterpreters.Lox
                 return;
             }
 
-            if (enclosing != null)
+            if (Enclosing != null)
             {
-                enclosing.Assign(name, value);
+                Enclosing.Assign(name, value);
                 return;
             }
 
@@ -56,7 +56,7 @@ namespace CraftingInterpreters.Lox
             var environment = this;
             for (var i = 0; i < distance; i++)
             {
-                environment = environment.enclosing;
+                environment = environment.Enclosing;
             }
 
             return environment;

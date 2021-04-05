@@ -59,12 +59,29 @@ namespace CraftingInterpreters.Lox
 
             if (!(@object is LoxInstance loxInstance))
             {
-                throw new RuntimeError(expr.Name, "Only instancesave fields.");
+                throw new RuntimeError(expr.Name, "Only instances have fields.");
             }
             
             var value = Evaluate(expr.Value);
             loxInstance.Set(expr.Name, value);
             return value;
+        }
+
+        public object VisitSuperExpr(Expr.Super expr)
+        {
+            var distance = locals[expr];
+            var superclass = (LoxClass)environment.GetAt(distance, "super");
+
+            var @object = (LoxInstance)environment.GetAt(distance - 1, "this");
+
+            var method = superclass.FindMethod(expr.Method.Lexeme);
+
+            if (method == null)
+            {
+                throw new RuntimeError(expr.Method, $"Undefined property '{expr.Method.Lexeme}'.");
+            }
+
+            return method.Bind(@object);
         }
 
         public object VisitThisExpr(Expr.This expr)
@@ -196,7 +213,22 @@ namespace CraftingInterpreters.Lox
 
         public object VisitClassStmt(Stmt.Class stmt)
         {
+            object superclass = null;
+            if (stmt.Superclass != null)
+            {
+                superclass = Evaluate(stmt.Superclass);
+                if (!(superclass is LoxClass))
+                {
+                    throw new RuntimeError(stmt.Superclass.Name, "Superclass must be a class.");
+                }
+            }
             environment.Define(stmt.Name.Lexeme, null);
+
+            if (stmt.Superclass != null)
+            {
+                environment = new Environment(environment);
+                environment.Define("super", superclass);
+            }
 
             var methods = new Dictionary<string, LoxFunction>();
             foreach (var method in stmt.Methods)
@@ -205,7 +237,13 @@ namespace CraftingInterpreters.Lox
                 methods[method.Name.Lexeme] = function;
             }
 
-            var @class = new LoxClass(stmt.Name.Lexeme, methods);
+            var @class = new LoxClass(stmt.Name.Lexeme, (LoxClass)superclass, methods);
+
+            if (superclass != null)
+            {
+                environment = environment.Enclosing;
+            }
+
             environment.Assign(stmt.Name, @class);
             return null;
         }
@@ -370,7 +408,7 @@ namespace CraftingInterpreters.Lox
                 return loxInstance.Get(expr.Name);
             }
 
-            throw new RuntimeError(expr.Name, "Only instancesave properties.");
+            throw new RuntimeError(expr.Name, "Only instances have properties.");
         }
     }
 }

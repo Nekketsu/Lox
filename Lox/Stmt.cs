@@ -33,11 +33,13 @@ namespace CraftingInterpreters.Lox
         public class Class : Stmt
         {
             public Token Name { get; }
+            public Expr.Variable Superclass { get; }
             public Stmt.Function[] Methods { get; }
 
-            public Class(Token name, Stmt.Function[] methods)
+            public Class(Token name, Expr.Variable superclass, Stmt.Function[] methods)
             {
                 Name = name;
+                Superclass = superclass;
                 Methods = methods;
             }
 

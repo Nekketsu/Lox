@@ -5,10 +5,12 @@ namespace CraftingInterpreters.Lox
     public class LoxClass : LoxCallable
     {
         public string Name { get; }
+        public LoxClass Superclass {  get; }
         private readonly Dictionary<string, LoxFunction> methods;
 
-        public LoxClass(string name, Dictionary<string, LoxFunction> methods)
+        public LoxClass(string name, LoxClass superclass, Dictionary<string, LoxFunction> methods)
         {
+            this.Superclass = superclass;
             Name = name;
             this.methods = methods;
         }
@@ -18,6 +20,11 @@ namespace CraftingInterpreters.Lox
             if (methods.TryGetValue(name, out var method))
             {
                 return method;
+            }
+
+            if (Superclass != null)
+            {
+                return Superclass.FindMethod(name);
             }
 
             return null;

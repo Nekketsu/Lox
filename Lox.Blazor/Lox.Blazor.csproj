@@ -1,31 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Remove="wwwroot\Samples\08_statements-and-state.lox" />
-    <Content Remove="wwwroot\Samples\09_control-flow.lox" />
-    <Content Remove="wwwroot\Samples\10_functions1_sayHi.lox" />
-    <Content Remove="wwwroot\Samples\10_functions2_fibonacci.lox" />
-    <Content Remove="wwwroot\Samples\10_functions3_makeCounter.lox" />
-    <Content Remove="wwwroot\Samples\11_resolving-and-binding1.lox" />
-    <Content Remove="wwwroot\Samples\11_resolving-and-binding2.lox" />
-    <Content Remove="wwwroot\Samples\12_classes1.lox" />
-    <Content Remove="wwwroot\Samples\12_classes2.lox" />
-    <Content Remove="wwwroot\Samples\12_classes3.lox" />
-    <Content Remove="wwwroot\Samples\12_classes4.lox" />
-    <Content Remove="wwwroot\Samples\12_classes5.lox" />
-    <Content Remove="wwwroot\Samples\12_classes6.lox" />
-    <Content Remove="wwwroot\Samples\12_classes7.lox" />
-    <Content Remove="wwwroot\Samples\12_classes8.lox" />
-    <Content Remove="wwwroot\Samples\13_Inheritance1.lox" />
-    <Content Remove="wwwroot\Samples\13_Inheritance2.lox" />
-    <Content Remove="wwwroot\Samples\13_Inheritance3.lox" />
-    <Content Remove="wwwroot\Samples\13_Inheritance4.lox" />
-  </ItemGroup>
 
   <ItemGroup>
     <Content Include="Services\SamplesServices.cs" />
@@ -43,28 +21,6 @@
 
   <ItemGroup>
     <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="wwwroot\Samples\12_classes1.lox" />
-    <None Include="wwwroot\Samples\12_classes2.lox" />
-    <None Include="wwwroot\Samples\12_classes3.lox" />
-    <None Include="wwwroot\Samples\12_classes4.lox" />
-    <None Include="wwwroot\Samples\12_classes5.lox" />
-    <None Include="wwwroot\Samples\12_classes6.lox" />
-    <None Include="wwwroot\Samples\12_classes7.lox" />
-    <None Include="wwwroot\Samples\12_classes8.lox" />
-    <None Include="wwwroot\Samples\09_control-flow.lox" />
-    <None Include="wwwroot\Samples\10_functions1_sayHi.lox" />
-    <None Include="wwwroot\Samples\10_functions2_fibonacci.lox" />
-    <None Include="wwwroot\Samples\10_functions3_makeCounter.lox" />
-    <None Include="wwwroot\Samples\13_Inheritance1.lox" />
-    <None Include="wwwroot\Samples\13_Inheritance2.lox" />
-    <None Include="wwwroot\Samples\13_Inheritance3.lox" />
-    <None Include="wwwroot\Samples\13_Inheritance4.lox" />
-    <None Include="wwwroot\Samples\11_resolving-and-binding1.lox" />
-    <None Include="wwwroot\Samples\11_resolving-and-binding2.lox" />
-    <None Include="wwwroot\Samples\08_statements-and-state.lox" />
   </ItemGroup>
 
 </Project>

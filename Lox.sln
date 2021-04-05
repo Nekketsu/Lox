@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.6.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lox", "Lox\Lox.csproj", "{1340B3E9-83EF-4B6B-B311-C75013B4DF11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lox", "Lox\Lox.csproj", "{1340B3E9-83EF-4B6B-B311-C75013B4DF11}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lox.Tool", "Lox.Tool\Lox.Tool.csproj", "{41AADD3F-A0F6-420C-BE1C-576EB8B9B9D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lox.Tool", "Lox.Tool\Lox.Tool.csproj", "{41AADD3F-A0F6-420C-BE1C-576EB8B9B9D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lox.Blazor", "Lox.Blazor\Lox.Blazor.csproj", "{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{1340B3E9-83EF-4B6B-B311-C75013B4DF11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -44,5 +43,23 @@ Global
 		{41AADD3F-A0F6-420C-BE1C-576EB8B9B9D6}.Release|x64.Build.0 = Release|Any CPU
 		{41AADD3F-A0F6-420C-BE1C-576EB8B9B9D6}.Release|x86.ActiveCfg = Release|Any CPU
 		{41AADD3F-A0F6-420C-BE1C-576EB8B9B9D6}.Release|x86.Build.0 = Release|Any CPU
+		{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}.Debug|x64.Build.0 = Debug|Any CPU
+		{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}.Debug|x86.Build.0 = Debug|Any CPU
+		{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}.Release|x64.ActiveCfg = Release|Any CPU
+		{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}.Release|x64.Build.0 = Release|Any CPU
+		{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}.Release|x86.ActiveCfg = Release|Any CPU
+		{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B8019EC6-2F35-4D54-8455-CC4F91484C78}
 	EndGlobalSection
 EndGlobal

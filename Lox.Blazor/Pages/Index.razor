@@ -1,0 +1,16 @@
+﻿@page "/"
+
+<h1>Lox!</h1>
+<button class="btn btn-primary" @onclick="Run">Run</button>
+
+<textarea rows="30" style="width: 100%" @bind="Source" @bind:event="oninput"></textarea>
+<div>
+    @if (Output != null)
+    {
+        @foreach (var line in Output)
+        {
+            @line
+            <br />
+        }
+    }
+</div>

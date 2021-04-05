@@ -277,7 +277,8 @@ namespace CraftingInterpreters.Lox
         public object VisitPrintStmt(Stmt.Print stmt)
         {
             var value = Evaluate(stmt.Expr);
-            Console.WriteLine(Stringify(value));
+            //Console.WriteLine(Stringify(value));
+            Lox.WriteLine(Stringify(value));
             return null;
         }
 

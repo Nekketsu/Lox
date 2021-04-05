@@ -6,6 +6,9 @@ namespace CraftingInterpreters.Lox
 {
     public class Lox
     {
+        public static Action<string> WriteLine = text => Console.WriteLine(text);
+        public static Action<string> ErrorWriteLine = text => Console.Error.WriteLine(text);
+
         public static CultureInfo CultureInfo { get; } = new CultureInfo("en-US");
         private static readonly Interpreter interpreter = new Interpreter();
 
@@ -54,7 +57,7 @@ namespace CraftingInterpreters.Lox
             }
         }
 
-        private static void Run(string source)
+        public static void Run(string source)
         {
             var scanner = new Scanner(source);
             var tokens = scanner.ScanTokens();
@@ -80,7 +83,8 @@ namespace CraftingInterpreters.Lox
 
         private static void Report(int line, string where, string message)
         {
-            Console.Error.WriteLine($"[line {line}] Error{where}: {message}");
+            //Console.Error.WriteLine($"[line {line}] Error{where}: {message}");
+            Lox.ErrorWriteLine($"[line {line}] Error{where}: {message}");
             hadError = true;
         }
 
@@ -98,7 +102,8 @@ namespace CraftingInterpreters.Lox
 
         public static void RuntimeError(RuntimeError error)
         {
-            Console.Error.WriteLine($"{error.Message}\n[line {error.Token.Line}]");
+            //Console.Error.WriteLine($"{error.Message}\n[line {error.Token.Line}]");
+            Lox.ErrorWriteLine($"{error.Message}\n[line {error.Token.Line}]");
             hadRuntimeError = true;
         }
     }

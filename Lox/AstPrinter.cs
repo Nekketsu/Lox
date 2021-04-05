@@ -25,6 +25,11 @@ namespace CraftingInterpreters.Lox
             throw new NotImplementedException();
         }
 
+        public string VisitGetExpr(Expr.Get expr)
+        {
+            throw new NotImplementedException();
+        }
+
         public string VisitGroupingExpr(Expr.Grouping expr)
         {
             return Parenthesize("group", expr.Expression);
@@ -37,6 +42,16 @@ namespace CraftingInterpreters.Lox
         }
 
         public string VisitLogicalExpr(Expr.Logical expr)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string VisitSetExpr(Expr.Set expr)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string VisitThisExpr(Expr.This expr)
         {
             throw new NotImplementedException();
         }

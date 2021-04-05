@@ -53,6 +53,25 @@ namespace CraftingInterpreters.Lox
             return Evaluate(expr.Right);
         }
 
+        public object VisitSetExpr(Expr.Set expr)
+        {
+            var @object = Evaluate(expr.Object);
+
+            if (!(@object is LoxInstance loxInstance))
+            {
+                throw new RuntimeError(expr.Name, "Only instancesave fields.");
+            }
+            
+            var value = Evaluate(expr.Value);
+            loxInstance.Set(expr.Name, value);
+            return value;
+        }
+
+        public object VisitThisExpr(Expr.This expr)
+        {
+            return LookUpVariable(expr.Keyword, expr);
+        }
+
         public object VisitGroupingExpr(Expr.Grouping expr)
         {
             return Evaluate(expr.Expression);
@@ -125,7 +144,7 @@ namespace CraftingInterpreters.Lox
 
             if (@object is double objectDouble)
             {
-                var text = @object.ToString();
+                var text = objectDouble.ToString(Lox.CultureInfo);
                 if (text.EndsWith(".0"))
                 {
                     text = text.Substring(0, text.Length - 2);
@@ -175,6 +194,22 @@ namespace CraftingInterpreters.Lox
             return null;
         }
 
+        public object VisitClassStmt(Stmt.Class stmt)
+        {
+            environment.Define(stmt.Name.Lexeme, null);
+
+            var methods = new Dictionary<string, LoxFunction>();
+            foreach (var method in stmt.Methods)
+            {
+                var function = new LoxFunction(method, environment, method.Name.Lexeme == "init");
+                methods[method.Name.Lexeme] = function;
+            }
+
+            var @class = new LoxClass(stmt.Name.Lexeme, methods);
+            environment.Assign(stmt.Name, @class);
+            return null;
+        }
+
         public object VisitExpressionStmt(Stmt.Expression stmt)
         {
             Evaluate(stmt.Expr);
@@ -183,7 +218,7 @@ namespace CraftingInterpreters.Lox
 
         public object VisitFunctionStmt(Stmt.Function stmt)
         {
-            var function = new LoxFunction(stmt, environment);
+            var function = new LoxFunction(stmt, environment, false);
             environment.Define(stmt.Name.Lexeme, function);
             return null;
         }
@@ -325,6 +360,17 @@ namespace CraftingInterpreters.Lox
             }
 
             return function.Call(this, arguments.ToArray());
+        }
+
+        public object VisitGetExpr(Expr.Get expr)
+        {
+            var @object = Evaluate(expr.Object);
+            if (@object is LoxInstance loxInstance)
+            {
+                return loxInstance.Get(expr.Name);
+            }
+
+            throw new RuntimeError(expr.Name, "Only instancesave properties.");
         }
     }
 }

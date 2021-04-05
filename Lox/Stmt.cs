@@ -5,6 +5,7 @@ namespace CraftingInterpreters.Lox
         public interface Visitor<R>
         {
             R VisitBlockStmt(Block stmt);
+            R VisitClassStmt(Class stmt);
             R VisitExpressionStmt(Expression stmt);
             R VisitFunctionStmt(Function stmt);
             R VisitIfStmt(If stmt);
@@ -26,6 +27,23 @@ namespace CraftingInterpreters.Lox
             public override R Accept<R>(Visitor<R> visitor)
             {
                 return visitor.VisitBlockStmt(this);
+            }
+        }
+
+        public class Class : Stmt
+        {
+            public Token Name { get; }
+            public Stmt.Function[] Methods { get; }
+
+            public Class(Token name, Stmt.Function[] methods)
+            {
+                Name = name;
+                Methods = methods;
+            }
+
+            public override R Accept<R>(Visitor<R> visitor)
+            {
+                return visitor.VisitClassStmt(this);
             }
         }
 

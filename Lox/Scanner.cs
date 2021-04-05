@@ -148,7 +148,7 @@ namespace CraftingInterpreters.Lox
                 while (IsDigit(Peek())) { Advance(); }
             }
 
-            AddToken(NUMBER, double.Parse(source.Substring(start, current - start)));
+            AddToken(NUMBER, double.Parse(source.Substring(start, current - start), Lox.CultureInfo));
         }
 
         private void String()

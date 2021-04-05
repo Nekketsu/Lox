@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 
 namespace CraftingInterpreters.Lox
 {
-    class Lox
+    public class Lox
     {
+        public static CultureInfo CultureInfo { get; } = new CultureInfo("en-US");
         private static readonly Interpreter interpreter = new Interpreter();
 
         static bool hadError = false;

@@ -36,6 +36,7 @@ namespace CraftingInterpreters.Lox
         {
             try
             {
+                if (Match(CLASS)) { return ClassDeclaration(); }
                 if (Match(FUN)) { return FunctionDeclaration("function"); }
                 if (Match(VAR)) { return VarDeclaration(); }
 
@@ -46,6 +47,22 @@ namespace CraftingInterpreters.Lox
                 Synchronize();
                 return null;
             }
+        }
+
+        private Stmt ClassDeclaration()
+        {
+            var name = Consume(IDENTIFIER, "Expect class name.");
+            Consume(LEFT_BRACE, "Expect '{' before class body.");
+
+            var methods = new List<Stmt.Function>();
+            while (!Check(RIGHT_BRACE) && !IsAtEnd())
+            {
+                methods.Add(FunctionDeclaration("method"));
+            }
+
+            Consume(RIGHT_BRACE, "Expect '}' after class body.");
+
+            return new Stmt.Class(name, methods.ToArray());
         }
 
         private Stmt Statement()
@@ -228,6 +245,10 @@ namespace CraftingInterpreters.Lox
                     var name = variableExpr.Name;
                     return new Expr.Assign(name, value);
                 }
+                else if (expr is Expr.Get get)
+                {
+                    return new Expr.Set(get.Object, get.Name, value);
+                }
 
                 Error(equals, "Invalid assignment target.");
             }
@@ -361,6 +382,11 @@ namespace CraftingInterpreters.Lox
                 {
                     expr = FinishCall(expr);
                 }
+                else if (Match(DOT))
+                {
+                    var name = Consume(IDENTIFIER, "Expect property name after '.'.");
+                    expr = new Expr.Get(expr, name);
+                }
                 else
                 {
                     break;
@@ -380,6 +406,8 @@ namespace CraftingInterpreters.Lox
             {
                 return new Expr.Literal(Previous().Literal);
             }
+
+            if (Match(THIS)) { return new Expr.This(Previous()); }
 
             if (Match(IDENTIFIER))
             {

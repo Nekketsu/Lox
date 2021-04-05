@@ -18,12 +18,15 @@ namespace Lox.Blazor.Pages
 
         private void Run()
         {
-            CraftingInterpreters.Lox.Lox.Run(Source);
+            if (Source != null)
+            {
+                CraftingInterpreters.Lox.Lox.Run(Source);
 
-            var output = loxOutput.ToString();
-            loxOutput.Clear();
+                var output = loxOutput.ToString();
+                loxOutput.Clear();
 
-            Output = output.Split(Environment.NewLine);
+                Output = output.Split(Environment.NewLine);
+            }
         }
 
         private void WriteLine(string text)

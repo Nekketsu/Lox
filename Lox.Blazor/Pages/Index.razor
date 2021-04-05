@@ -3,7 +3,17 @@
 <h1>Lox!</h1>
 <button class="btn btn-primary" @onclick="Run">Run</button>
 
-<textarea rows="30" style="width: 100%" @bind="Source" @bind:event="oninput"></textarea>
+@if (Samples != null)
+{
+    <select @onchange="SelectSample">
+        @foreach (var sample in Samples)
+        {
+            <option value="@sample">@sample</option>
+        }
+    </select>
+}
+
+<textarea rows="20" style="width: 100%" @bind="Source" @bind:event="oninput"></textarea>
 <div>
     @if (Output != null)
     {

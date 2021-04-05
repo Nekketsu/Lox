@@ -42,7 +42,7 @@ namespace CraftingInterpreters.Lox
 
                 return Statement();
             }
-            catch (ParseError error)
+            catch (ParseError/* error*/)
             {
                 Synchronize();
                 return null;

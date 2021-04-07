@@ -34,6 +34,7 @@ namespace Lox.Blazor.Pages
         {
             if (Source != null)
             {
+                CraftingInterpreters.Lox.Lox.Reset();
                 CraftingInterpreters.Lox.Lox.Run(Source);
 
                 var output = loxOutput.ToString();

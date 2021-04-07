@@ -15,6 +15,12 @@ namespace CraftingInterpreters.Lox
         static bool hadError = false;
         static bool hadRuntimeError = false;
 
+        public static void Reset()
+        {
+            hadError = false;
+            hadRuntimeError = false;
+        }
+
         static int Main(string[] args)
         {
             if (args.Length > 1)

@@ -1,0 +1,9 @@
+#ifndef clox_debug_h
+#define clox_debug_h
+
+#include "chunk.h"
+
+void DissasembleChunk(Chunk* chunk, const char* name);
+int DisassembleInstruction(Chunk* chunk, int offset);
+
+#endif

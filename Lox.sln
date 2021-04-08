@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lox", "Lox\Lox.csproj", "{1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lox.Tool", "Lox.Tool\Lox.Tool.csproj", "{41AADD3F-A0F6-420C-BE1C-576EB8B9B9D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lox.Blazor", "Lox.Blazor\Lox.Blazor.csproj", "{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lox.Blazor", "Lox.Blazor\Lox.Blazor.csproj", "{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CLox", "CLox\CLox.vcxproj", "{EFB8D9EC-BB4A-4B9A-8F98-770EA845CFCF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +57,16 @@ Global
 		{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}.Release|x64.Build.0 = Release|Any CPU
 		{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}.Release|x86.ActiveCfg = Release|Any CPU
 		{E4956A0A-DC9D-4A93-AC5C-4573D0E14FDF}.Release|x86.Build.0 = Release|Any CPU
+		{EFB8D9EC-BB4A-4B9A-8F98-770EA845CFCF}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{EFB8D9EC-BB4A-4B9A-8F98-770EA845CFCF}.Debug|x64.ActiveCfg = Debug|x64
+		{EFB8D9EC-BB4A-4B9A-8F98-770EA845CFCF}.Debug|x64.Build.0 = Debug|x64
+		{EFB8D9EC-BB4A-4B9A-8F98-770EA845CFCF}.Debug|x86.ActiveCfg = Debug|Win32
+		{EFB8D9EC-BB4A-4B9A-8F98-770EA845CFCF}.Debug|x86.Build.0 = Debug|Win32
+		{EFB8D9EC-BB4A-4B9A-8F98-770EA845CFCF}.Release|Any CPU.ActiveCfg = Release|Win32
+		{EFB8D9EC-BB4A-4B9A-8F98-770EA845CFCF}.Release|x64.ActiveCfg = Release|x64
+		{EFB8D9EC-BB4A-4B9A-8F98-770EA845CFCF}.Release|x64.Build.0 = Release|x64
+		{EFB8D9EC-BB4A-4B9A-8F98-770EA845CFCF}.Release|x86.ActiveCfg = Release|Win32
+		{EFB8D9EC-BB4A-4B9A-8F98-770EA845CFCF}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

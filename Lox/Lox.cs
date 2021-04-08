@@ -6,11 +6,11 @@ namespace CraftingInterpreters.Lox
 {
     public class Lox
     {
-        public static Action<string> WriteLine = text => Console.WriteLine(text);
-        public static Action<string> ErrorWriteLine = text => Console.Error.WriteLine(text);
+        public static Action<string> WriteLine { get; set; } = text => Console.WriteLine(text);
+        public static Action<string> ErrorWriteLine { get; set; } = text => Console.Error.WriteLine(text);
 
         public static CultureInfo CultureInfo { get; } = new CultureInfo("en-US");
-        private static readonly Interpreter interpreter = new Interpreter();
+        private static readonly Interpreter interpreter = new();
 
         static bool hadError = false;
         static bool hadRuntimeError = false;
@@ -50,7 +50,7 @@ namespace CraftingInterpreters.Lox
             if (hadError) { System.Environment.Exit(65); }
             if (hadRuntimeError) { System.Environment.Exit(70); }
         }
-        
+
         private static void RunPrompt()
         {
             while (true)

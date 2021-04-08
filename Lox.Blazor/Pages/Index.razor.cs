@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Lox.Blazor.Services;
+using Microsoft.AspNetCore.Components;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Lox.Blazor.Services;
-using System.Linq;
 
 namespace Lox.Blazor.Pages
 {
@@ -13,21 +13,30 @@ namespace Lox.Blazor.Pages
         [Inject]
         public HttpClient HttpClient { get; set; }
 
-        private StringBuilder loxOutput = new StringBuilder();
+        private readonly StringBuilder loxOutput = new();
 
         public string Source { get; set; }
         public string[] Output { get; set; }
-        public string[] Samples { get; set; }
+
+        public Dictionary<string, string[]> Tests { get; set; }
+        public string SelectedFolder { get; set; }
+        public string SelectedTest { get; set; }
+
+        public bool ShouldClearSelectedTest { get; set; }
+
+        private readonly TestServices testService;
 
         public Index()
         {
-            Samples = new SamplesServices().Samples.Prepend(string.Empty).ToArray();
+            testService = new TestServices();
         }
 
-        protected override void OnInitialized()
+        protected override async Task OnInitializedAsync()
         {
             CraftingInterpreters.Lox.Lox.WriteLine = WriteLine;
             CraftingInterpreters.Lox.Lox.ErrorWriteLine = WriteLine;
+
+            Tests = await testService.GetTestsAsync(HttpClient, "/Tests/Tests.json");
         }
 
         private void Run()
@@ -44,13 +53,19 @@ namespace Lox.Blazor.Pages
             }
         }
 
-        private async Task SelectSample(ChangeEventArgs e)
+        private void OnFolderSelected(ChangeEventArgs e)
         {
-            var sample = e.Value.ToString();
+            SelectedFolder = e.Value?.ToString();
+            SelectedTest = null;
+        }
 
-            if (!string.IsNullOrWhiteSpace(sample))
+        private async Task OnTestSelected(ChangeEventArgs e)
+        {
+            SelectedTest = e.Value?.ToString();
+
+            if (!string.IsNullOrWhiteSpace(SelectedTest))
             {
-                Source = await HttpClient.GetStringAsync($"Samples/{sample}");
+                Source = await HttpClient.GetStringAsync($"Tests/{SelectedFolder}/{SelectedTest}");
             }
         }
 

@@ -98,7 +98,7 @@ namespace CraftingInterpreters.Lox
             Resolve(stmt.Expr);
             return null;
         }
-        
+
         public object VisitFunctionStmt(Stmt.Function stmt)
         {
             Declare(stmt.Name);

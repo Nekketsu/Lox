@@ -5,7 +5,7 @@ namespace CraftingInterpreters.Lox
     public class LoxClass : LoxCallable
     {
         public string Name { get; }
-        public LoxClass Superclass {  get; }
+        public LoxClass Superclass { get; }
         private readonly Dictionary<string, LoxFunction> methods;
 
         public LoxClass(string name, LoxClass superclass, Dictionary<string, LoxFunction> methods)

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using static CraftingInterpreters.Lox.TokenType;
 
@@ -6,15 +5,15 @@ namespace CraftingInterpreters.Lox
 {
     public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
     {
-        private CraftingInterpreters.Lox.Environment globals { get; } = new CraftingInterpreters.Lox.Environment();
-        private CraftingInterpreters.Lox.Environment environment;
-        private Dictionary<Expr, int> locals = new Dictionary<Expr, int>();
+        private readonly Environment globals = new();
+        private Environment environment;
+        private readonly Dictionary<Expr, int> locals = new();
 
         public Interpreter()
         {
             environment = globals;
 
-            globals.Define("Clock", new Clock());
+            globals.Define("clock", new Clock());
         }
 
         public void Interpret(Stmt[] statements)
@@ -57,11 +56,11 @@ namespace CraftingInterpreters.Lox
         {
             var @object = Evaluate(expr.Object);
 
-            if (!(@object is LoxInstance loxInstance))
+            if (@object is not LoxInstance loxInstance)
             {
                 throw new RuntimeError(expr.Name, "Only instances have fields.");
             }
-            
+
             var value = Evaluate(expr.Value);
             loxInstance.Set(expr.Name, value);
             return value;
@@ -104,7 +103,7 @@ namespace CraftingInterpreters.Lox
                     return !IsTruthy(right);
                 case MINUS:
                     CheckNumberOperand(expr.Operator, right);
-                    return -(double) right;
+                    return -(double)right;
             }
 
             // Unreachable.
@@ -133,7 +132,7 @@ namespace CraftingInterpreters.Lox
             if (operand is double) return;
             throw new RuntimeError(@operator, "Operand must be a number.");
         }
-        
+
         private void CheckNumberOperands(Token @operator, object left, object right)
         {
             if (left is double && right is double) return;
@@ -164,9 +163,13 @@ namespace CraftingInterpreters.Lox
                 var text = objectDouble.ToString(Lox.CultureInfo);
                 if (text.EndsWith(".0"))
                 {
-                    text = text.Substring(0, text.Length - 2);
+                    text = text[0..^2];
                 }
                 return text;
+            }
+            else if (@object is bool objectBool)
+            {
+                return objectBool.ToString().ToLower();
             }
 
             return @object.ToString();
@@ -186,7 +189,7 @@ namespace CraftingInterpreters.Lox
         {
             locals[expr] = depth;
         }
-        
+
         public void ExecuteBlock(Stmt[] statements, Environment environment)
         {
             var previous = this.environment;
@@ -286,7 +289,7 @@ namespace CraftingInterpreters.Lox
         {
             object value = null;
             if (stmt.Value != null) { value = Evaluate(stmt.Value); }
-            
+
             throw new Return(value);
         }
 
@@ -315,7 +318,7 @@ namespace CraftingInterpreters.Lox
         public object VisitAssignExpr(Expr.Assign expr)
         {
             var value = Evaluate(expr.Value);
-            
+
             if (locals.TryGetValue(expr, out var distance))
             {
                 environment.AssignAt(distance, expr.Name, value);
@@ -326,7 +329,7 @@ namespace CraftingInterpreters.Lox
             }
             return value;
         }
-        
+
         public object VisitBinaryExpr(Expr.Binary expr)
         {
             var left = Evaluate(expr.Left);
@@ -388,7 +391,7 @@ namespace CraftingInterpreters.Lox
                 arguments.Add(Evaluate(argument));
             }
 
-            if (!(callee is LoxCallable function))
+            if (callee is not LoxCallable function)
             {
                 throw new RuntimeError(expr.Paren, "Can only call functions and classes.");
             }

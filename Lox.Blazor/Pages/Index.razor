@@ -3,24 +3,36 @@
 <h1>Lox!</h1>
 <button class="btn btn-primary" @onclick="Run">Run</button>
 
-@if (Samples != null)
+@if (Tests != null)
 {
-    <select @onchange="SelectSample">
-        @foreach (var sample in Samples)
+    <select @onchange="OnFolderSelected">
+        <option value="">Select a folder...</option>
+        @foreach (var folder in Tests.Keys)
         {
-            <option value="@sample">@sample</option>
+            <option value="@folder">@folder</option>
+        }
+    </select>
+
+    <select value="@SelectedTest" @onchange="OnTestSelected">
+        <option value="">Select a test...</option>
+        @if (!string.IsNullOrEmpty(SelectedFolder))
+        {
+            @foreach (var test in Tests[SelectedFolder])
+            {
+                <option value="@test">@test</option>
+            }
         }
     </select>
 }
 
 <textarea rows="20" style="width: 100%" @bind="Source" @bind:event="oninput"></textarea>
-<div>
-    @if (Output != null)
-    {
-        @foreach (var line in Output)
+    <div>
+        @if (Output != null)
         {
-            @line
-            <br />
+            @foreach (var line in Output)
+            {
+                @line
+                <br />
+            }
         }
-    }
-</div>
+    </div>

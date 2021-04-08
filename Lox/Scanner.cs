@@ -6,7 +6,7 @@ namespace CraftingInterpreters.Lox
     public class Scanner
     {
         private static readonly Dictionary<string, TokenType> keywords;
-        
+
         private readonly string source;
         private readonly List<Token> tokens = new List<Token>();
 
@@ -173,7 +173,7 @@ namespace CraftingInterpreters.Lox
             AddToken(STRING, value);
         }
 
-        private bool Match (char expected)
+        private bool Match(char expected)
         {
             if (IsAtEnd()) return false;
             if (source[current] != expected) { return false; }

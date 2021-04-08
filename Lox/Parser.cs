@@ -6,7 +6,7 @@ namespace CraftingInterpreters.Lox
 {
     public class Parser
     {
-        private class ParseError : Exception {}
+        private class ParseError : Exception { }
 
         private readonly List<Token> tokens;
         private int current = 0;
@@ -23,7 +23,7 @@ namespace CraftingInterpreters.Lox
             {
                 statements.Add(Declaration());
             }
-            
+
             return statements.ToArray();
         }
 
@@ -120,7 +120,7 @@ namespace CraftingInterpreters.Lox
 
             if (increment != null)
             {
-                body = new Stmt.Block(new [] { body, new Stmt.Expression(increment) });
+                body = new Stmt.Block(new[] { body, new Stmt.Expression(increment) });
             }
 
             if (condition == null) { condition = new Expr.Literal(true); }
@@ -128,7 +128,7 @@ namespace CraftingInterpreters.Lox
 
             if (initializer != null)
             {
-                body = new Stmt.Block(new [] { initializer, body });
+                body = new Stmt.Block(new[] { initializer, body });
             }
 
             return body;
@@ -187,7 +187,7 @@ namespace CraftingInterpreters.Lox
         private Stmt WhileStatement()
         {
             Consume(LEFT_PAREN, "Expect '(' after 'while'.");
-            var condition  = Expression();
+            var condition = Expression();
             Consume(RIGHT_PAREN, "Expect ')' after condition.");
             var body = Statement();
 
@@ -452,7 +452,7 @@ namespace CraftingInterpreters.Lox
 
             return false;
         }
-        
+
         private Token Consume(TokenType type, string message)
         {
             if (Check(type)) { return Advance(); }
@@ -465,7 +465,7 @@ namespace CraftingInterpreters.Lox
             if (IsAtEnd()) { return false; }
             return Peek().Type == type;
         }
-        
+
         private Token Advance()
         {
             if (!IsAtEnd()) { current++; }

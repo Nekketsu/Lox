@@ -1,0 +1,329 @@
+﻿{
+  "basic": [
+    "empty_file.lox",
+    "precedence.lox",
+    "unexpected_character.lox"
+  ],
+  "assignment": [
+    "associativity.lox",
+    "global.lox",
+    "grouping.lox",
+    "infix_operator.lox",
+    "local.lox",
+    "prefix_operator.lox",
+    "syntax.lox",
+    "to_this.lox",
+    "undefined.lox"
+  ],
+  "benchmark": [
+    "binary_trees.lox",
+    "equality.lox",
+    "fib.lox",
+    "instantiation.lox",
+    "invocation.lox",
+    "method_call.lox",
+    "properties.lox",
+    "string_equality.lox",
+    "trees.lox",
+    "zoo.lox",
+    "zoo_batch.lox"
+  ],
+  "block": [
+    "empty.lox",
+    "scope.lox"
+  ],
+  "bool": [
+    "equality.lox",
+    "not.lox"
+  ],
+  "call": [
+    "bool.lox",
+    "nil.lox",
+    "num.lox",
+    "object.lox",
+    "string.lox"
+  ],
+  "class": [
+    "empty.lox",
+    "inherit_self.lox",
+    "inherited_method.lox",
+    "local_inherit_other.lox",
+    "local_inherit_self.lox",
+    "local_reference_self.lox",
+    "reference_self.lox"
+  ],
+  "closure": [
+    "assign_to_closure.lox",
+    "assign_to_shadowed_later.lox",
+    "close_over_function_parameter.lox",
+    "close_over_later_variable.lox",
+    "close_over_method_parameter.lox",
+    "closed_closure_in_function.lox",
+    "nested_closure.lox",
+    "open_closure_in_function.lox",
+    "reference_closure_multiple_times.lox",
+    "reuse_closure_slot.lox",
+    "shadow_closure_with_local.lox",
+    "unused_closure.lox",
+    "unused_later_closure.lox"
+  ],
+  "comments": [
+    "line_at_eof.lox",
+    "only_line_comment.lox",
+    "only_line_comment_and_line.lox",
+    "unicode.lox"
+  ],
+  "constructor": [
+    "arguments.lox",
+    "call_init_early_return.lox",
+    "call_init_explicitly.lox",
+    "default.lox",
+    "default_arguments.lox",
+    "early_return.lox",
+    "extra_arguments.lox",
+    "init_not_method.lox",
+    "missing_arguments.lox",
+    "return_in_nested_function.lox",
+    "return_value.lox"
+  ],
+  "expressions": [
+    "evaluate.lox",
+    "parse.lox"
+  ],
+  "field": [
+    "call_function_field.lox",
+    "call_nonfunction_field.lox",
+    "get_and_set_method.lox",
+    "get_on_bool.lox",
+    "get_on_class.lox",
+    "get_on_function.lox",
+    "get_on_nil.lox",
+    "get_on_num.lox",
+    "get_on_string.lox",
+    "many.lox",
+    "method.lox",
+    "method_binds_this.lox",
+    "on_instance.lox",
+    "set_evaluation_order.lox",
+    "set_on_bool.lox",
+    "set_on_class.lox",
+    "set_on_function.lox",
+    "set_on_nil.lox",
+    "set_on_num.lox",
+    "set_on_string.lox",
+    "undefined.lox"
+  ],
+  "for": [
+    "class_in_body.lox",
+    "closure_in_body.lox",
+    "fun_in_body.lox",
+    "return_closure.lox",
+    "return_inside.lox",
+    "scope.lox",
+    "statement_condition.lox",
+    "statement_increment.lox",
+    "statement_initializer.lox",
+    "syntax.lox",
+    "var_in_body.lox"
+  ],
+  "function": [
+    "body_must_be_block.lox",
+    "empty_body.lox",
+    "extra_arguments.lox",
+    "local_mutual_recursion.lox",
+    "local_recursion.lox",
+    "missing_arguments.lox",
+    "missing_comma_in_parameters.lox",
+    "mutual_recursion.lox",
+    "nested_call_with_arguments.lox",
+    "parameters.lox",
+    "print.lox",
+    "recursion.lox",
+    "too_many_arguments.lox",
+    "too_many_parameters.lox"
+  ],
+  "if": [
+    "class_in_else.lox",
+    "class_in_then.lox",
+    "dangling_else.lox",
+    "else.lox",
+    "fun_in_else.lox",
+    "fun_in_then.lox",
+    "if.lox",
+    "truth.lox",
+    "var_in_else.lox",
+    "var_in_then.lox"
+  ],
+  "inheritance": [
+    "constructor.lox",
+    "inherit_from_function.lox",
+    "inherit_from_nil.lox",
+    "inherit_from_number.lox",
+    "inherit_methods.lox",
+    "parenthesized_superclass.lox",
+    "set_fields_from_base_class.lox"
+  ],
+  "limit": [
+    "loop_too_large.lox",
+    "no_reuse_constants.lox",
+    "stack_overflow.lox",
+    "too_many_constants.lox",
+    "too_many_locals.lox",
+    "too_many_upvalues.lox"
+  ],
+  "logical_operator": [
+    "and.lox",
+    "and_truth.lox",
+    "or.lox",
+    "or_truth.lox"
+  ],
+  "method": [
+    "arity.lox",
+    "empty_block.lox",
+    "extra_arguments.lox",
+    "missing_arguments.lox",
+    "not_found.lox",
+    "print_bound_method.lox",
+    "refer_to_name.lox",
+    "too_many_arguments.lox",
+    "too_many_parameters.lox"
+  ],
+  "nil": [
+    "literal.lox"
+  ],
+  "number": [
+    "decimal_point_at_eof.lox",
+    "leading_dot.lox",
+    "literals.lox",
+    "nan_equality.lox",
+    "trailing_dot.lox"
+  ],
+  "operator": [
+    "add.lox",
+    "add_bool_nil.lox",
+    "add_bool_num.lox",
+    "add_bool_string.lox",
+    "add_nil_nil.lox",
+    "add_num_nil.lox",
+    "add_string_nil.lox",
+    "comparison.lox",
+    "divide.lox",
+    "divide_nonnum_num.lox",
+    "divide_num_nonnum.lox",
+    "equals.lox",
+    "equals_class.lox",
+    "equals_method.lox",
+    "greater_nonnum_num.lox",
+    "greater_num_nonnum.lox",
+    "greater_or_equal_nonnum_num.lox",
+    "greater_or_equal_num_nonnum.lox",
+    "less_nonnum_num.lox",
+    "less_num_nonnum.lox",
+    "less_or_equal_nonnum_num.lox",
+    "less_or_equal_num_nonnum.lox",
+    "multiply.lox",
+    "multiply_nonnum_num.lox",
+    "multiply_num_nonnum.lox",
+    "negate.lox",
+    "negate_nonnum.lox",
+    "not.lox",
+    "not_class.lox",
+    "not_equals.lox",
+    "subtract.lox",
+    "subtract_nonnum_num.lox",
+    "subtract_num_nonnum.lox"
+  ],
+  "print": [
+    "missing_argument.lox"
+  ],
+  "regression": [
+    "394.lox",
+    "40.lox"
+  ],
+  "return": [
+    "after_else.lox",
+    "after_if.lox",
+    "after_while.lox",
+    "at_top_level.lox",
+    "in_function.lox",
+    "in_method.lox",
+    "return_nil_if_no_value.lox"
+  ],
+  "scanning": [
+    "identifiers.lox",
+    "keywords.lox",
+    "numbers.lox",
+    "punctuators.lox",
+    "strings.lox",
+    "whitespace.lox"
+  ],
+  "string": [
+    "error_after_multiline.lox",
+    "literals.lox",
+    "multiline.lox",
+    "unterminated.lox"
+  ],
+  "super": [
+    "bound_method.lox",
+    "call_other_method.lox",
+    "call_same_method.lox",
+    "closure.lox",
+    "constructor.lox",
+    "extra_arguments.lox",
+    "indirectly_inherited.lox",
+    "missing_arguments.lox",
+    "no_superclass_bind.lox",
+    "no_superclass_call.lox",
+    "no_superclass_method.lox",
+    "parenthesized.lox",
+    "reassign_superclass.lox",
+    "super_at_top_level.lox",
+    "super_in_closure_in_inherited_method.lox",
+    "super_in_inherited_method.lox",
+    "super_in_top_level_function.lox",
+    "super_without_dot.lox",
+    "super_without_name.lox",
+    "this_in_superclass_method.lox"
+  ],
+  "this": [
+    "closure.lox",
+    "nested_class.lox",
+    "nested_closure.lox",
+    "this_at_top_level.lox",
+    "this_in_method.lox",
+    "this_in_top_level_function.lox"
+  ],
+  "variable": [
+    "collide_with_parameter.lox",
+    "duplicate_local.lox",
+    "duplicate_parameter.lox",
+    "early_bound.lox",
+    "in_middle_of_block.lox",
+    "in_nested_block.lox",
+    "local_from_method.lox",
+    "redeclare_global.lox",
+    "redefine_global.lox",
+    "scope_reuse_in_different_blocks.lox",
+    "shadow_and_local.lox",
+    "shadow_global.lox",
+    "shadow_local.lox",
+    "undefined_global.lox",
+    "undefined_local.lox",
+    "uninitialized.lox",
+    "unreached_undefined.lox",
+    "use_false_as_var.lox",
+    "use_global_in_initializer.lox",
+    "use_local_in_initializer.lox",
+    "use_nil_as_var.lox",
+    "use_this_as_var.lox"
+  ],
+  "while": [
+    "class_in_body.lox",
+    "closure_in_body.lox",
+    "fun_in_body.lox",
+    "return_closure.lox",
+    "return_inside.lox",
+    "syntax.lox",
+    "var_in_body.lox"
+  ]
+}

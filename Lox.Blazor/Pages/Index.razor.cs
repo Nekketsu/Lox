@@ -36,7 +36,7 @@ namespace Lox.Blazor.Pages
             CraftingInterpreters.Lox.Lox.WriteLine = WriteLine;
             CraftingInterpreters.Lox.Lox.ErrorWriteLine = WriteLine;
 
-            Tests = await testService.GetTestsAsync(HttpClient, "/Tests/Tests.json");
+            Tests = await testService.GetTestsAsync(HttpClient, "Tests/Tests.json");
         }
 
         private void Run()

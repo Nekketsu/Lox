@@ -9,7 +9,7 @@ namespace Lox.Blazor.Services
     {
         public async Task<Dictionary<string, string[]>> GetTestsAsync(HttpClient httpClient, string uri)
         {
-            var tests = await httpClient.GetFromJsonAsync<Dictionary<string, string[]>>("https://localhost:44397" + uri);
+            var tests = await httpClient.GetFromJsonAsync<Dictionary<string, string[]>>(uri);
 
             return tests;
         }

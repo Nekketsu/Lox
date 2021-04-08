@@ -5,19 +5,19 @@
 
 @if (Tests != null)
 {
-    <select @onchange="OnFolderSelected">
-        <option value="">Select a folder...</option>
-        @foreach (var folder in Tests.Keys)
+    <select @onchange="OnCategorySelected">
+        <option value="">Select a category...</option>
+        @foreach (var category in Tests.Keys)
         {
-            <option value="@folder">@folder</option>
+            <option value="@category">@category</option>
         }
     </select>
 
     <select value="@SelectedTest" @onchange="OnTestSelected">
         <option value="">Select a test...</option>
-        @if (!string.IsNullOrEmpty(SelectedFolder))
+        @if (!string.IsNullOrEmpty(SelectedCategory))
         {
-            @foreach (var test in Tests[SelectedFolder])
+            @foreach (var test in Tests[SelectedCategory])
             {
                 <option value="@test">@test</option>
             }

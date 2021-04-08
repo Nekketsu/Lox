@@ -19,7 +19,7 @@ namespace Lox.Blazor.Pages
         public string[] Output { get; set; }
 
         public Dictionary<string, string[]> Tests { get; set; }
-        public string SelectedFolder { get; set; }
+        public string SelectedCategory { get; set; }
         public string SelectedTest { get; set; }
 
         public bool ShouldClearSelectedTest { get; set; }
@@ -53,9 +53,9 @@ namespace Lox.Blazor.Pages
             }
         }
 
-        private void OnFolderSelected(ChangeEventArgs e)
+        private void OnCategorySelected(ChangeEventArgs e)
         {
-            SelectedFolder = e.Value?.ToString();
+            SelectedCategory = e.Value?.ToString();
             SelectedTest = null;
         }
 
@@ -65,7 +65,7 @@ namespace Lox.Blazor.Pages
 
             if (!string.IsNullOrWhiteSpace(SelectedTest))
             {
-                Source = await HttpClient.GetStringAsync($"Tests/{SelectedFolder}/{SelectedTest}");
+                Source = await HttpClient.GetStringAsync($"Tests/{SelectedCategory}/{SelectedTest}");
             }
         }
 

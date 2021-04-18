@@ -208,6 +208,12 @@ static void Number()
 	EmitConstant(NUMBER_VAL(value));
 }
 
+static void String()
+{
+    EmitConstant(OBJ_VAL(CopyString(parser.previous.start + 1,
+                                    parser.previous.length - 2)));
+}
+
 static void Unary()
 {
 	TokenType operatorType = parser.previous.type;
@@ -218,10 +224,10 @@ static void Unary()
 	// Emit the oeprator instruction.
 	switch (operatorType)
 	{
-	case TOKEN_BANG: EmitByte(OP_NOT); break;
-		case TOKEN_MINUS: EmitByte(OP_NEGATE); break;
-		default:
-			return; // Unreachable.
+        case TOKEN_BANG: EmitByte(OP_NOT); break;
+            case TOKEN_MINUS: EmitByte(OP_NEGATE); break;
+            default:
+                return; // Unreachable.
 	}
 }
 
@@ -247,7 +253,7 @@ ParseRule rules[] =
 	[TOKEN_LESS]          = { NULL,     Binary, PREC_COMPARISON },
 	[TOKEN_LESS_EQUAL]    = { NULL,     Binary, PREC_COMPARISON },
 	[TOKEN_IDENTIFIER]    = { NULL,     NULL,   PREC_NONE },
-	[TOKEN_STRING]        = { NULL,     NULL,   PREC_NONE },
+	[TOKEN_STRING]        = { String,   NULL,   PREC_NONE },
 	[TOKEN_NUMBER]        = { Number,   NULL,   PREC_NONE },
 	[TOKEN_AND]           = { NULL,     NULL,   PREC_NONE },
 	[TOKEN_CLASS]         = { NULL,     NULL,   PREC_NONE },

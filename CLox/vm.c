@@ -35,10 +35,12 @@ void InitVM()
 {
 	ResetStack();
     vm.objects = NULL;
+    InitTable(&vm.strings);
 }
 
 void FreeVM()
 {
+    FreeTable(&vm.strings);
     FreeObjects();
 }
 

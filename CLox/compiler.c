@@ -32,7 +32,7 @@ typedef enum
 	PREC_PRIMARY
 } Precedence;
 
-typedef void (*ParseFn)();
+typedef void (*ParseFn)(bool canAssign);
 
 typedef struct
 {
@@ -109,6 +109,18 @@ static void Consume(TokenType type, const char* message)
 	ErrorAtCurrent(message);
 }
 
+static bool Check(TokenType type)
+{
+    return parser.current.type == type;
+}
+
+static bool Match(TokenType type)
+{
+    if (!Check(type)) { return false; }
+    Advance();
+    return true;
+}
+
 static void EmitByte(uint8_t byte)
 {
 	WriteChunk(CurrentChunk(), byte, parser.previous.line);
@@ -154,10 +166,28 @@ static void EndCompiler()
 }
 
 static void Expression();
+static void Statement();
+static void Declaration();
 static ParseRule* GetRule(TokenType type);
 static void ParsePrecedence(Precedence precedence);
 
-static void Binary()
+static uint8_t IdentifierConstant(Token* name)
+{
+    return MakeConstant(OBJ_VAL(CopyString(name->start, name->length)));
+}
+
+static uint8_t ParseVariable(const char* errorMessage)
+{
+    Consume(TOKEN_IDENTIFIER, errorMessage);
+    return IdentifierConstant(&parser.previous);
+}
+
+static void DefineVariable(uint8_t global)
+{
+    EmitBytes(OP_DEFINE_GLOBAL, global);
+}
+
+static void Binary(bool canAssign)
 {
 	// Remember the operator.
 	TokenType operatorType = parser.previous.type;
@@ -174,7 +204,7 @@ static void Binary()
 		case TOKEN_GREATER:       EmitByte(OP_GREATER); break;
 		case TOKEN_GREATER_EQUAL: EmitBytes(OP_LESS, OP_NEGATE); break;
 		case TOKEN_LESS:          EmitByte(OP_LESS); break;
-		case TOKEN_LESS_EQUAL:    EmitByte(OP_GREATER, OP_NOT); break;
+		case TOKEN_LESS_EQUAL:    EmitBytes(OP_GREATER, OP_NOT); break;
 		case TOKEN_PLUS:          EmitByte(OP_ADD); break;
 		case TOKEN_MINUS:         EmitByte(OP_SUBTRACT); break;
 		case TOKEN_STAR:          EmitByte(OP_MULTIPLY); break;
@@ -184,7 +214,7 @@ static void Binary()
 	}
 }
 
-static void Literal()
+static void Literal(bool canAssign)
 {
 	switch (parser.previous.type)
 	{
@@ -196,25 +226,46 @@ static void Literal()
 	}
 }
 
-static void Grouping()
+static void Grouping(bool canAssign)
 {
 	Expression();
 	Consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
 }
 
-static void Number()
+static void Number(bool canAssign)
 {
 	double value = strtod(parser.previous.start, NULL);
 	EmitConstant(NUMBER_VAL(value));
 }
 
-static void String()
+static void String(bool canAssign)
 {
     EmitConstant(OBJ_VAL(CopyString(parser.previous.start + 1,
                                     parser.previous.length - 2)));
 }
 
-static void Unary()
+static void NamedVariable(Token name, bool canAssign)
+{
+    uint8_t arg = IdentifierConstant(&name);
+
+    if (canAssign && Match(TOKEN_EQUAL))
+    {
+        Expression();
+        EmitBytes(OP_SET_GLOBAL, arg);
+    }
+    else
+    {
+        EmitBytes(OP_GET_GLOBAL, arg);
+    }
+    EmitBytes(OP_GET_GLOBAL, arg);
+}
+
+static void Variable(bool canAssign)
+{
+    NamedVariable(parser.previous, canAssign);
+}
+
+static void Unary(bool canAssign)
 {
 	TokenType operatorType = parser.previous.type;
 
@@ -252,7 +303,7 @@ ParseRule rules[] =
 	[TOKEN_GREATER_EQUAL] = { NULL,     Binary, PREC_COMPARISON },
 	[TOKEN_LESS]          = { NULL,     Binary, PREC_COMPARISON },
 	[TOKEN_LESS_EQUAL]    = { NULL,     Binary, PREC_COMPARISON },
-	[TOKEN_IDENTIFIER]    = { NULL,     NULL,   PREC_NONE },
+	[TOKEN_IDENTIFIER]    = { Variable, NULL,   PREC_NONE },
 	[TOKEN_STRING]        = { String,   NULL,   PREC_NONE },
 	[TOKEN_NUMBER]        = { Number,   NULL,   PREC_NONE },
 	[TOKEN_AND]           = { NULL,     NULL,   PREC_NONE },
@@ -285,14 +336,20 @@ static void ParsePrecedence(Precedence precedence)
 		return;
 	}
 
-	prefixRule();
+    bool canAssign = precedence <= PREC_ASSIGNMENT;
+	prefixRule(canAssign);
 
 	while (precedence <= GetRule(parser.current.type)->precedence)
 	{
 		Advance();
 		ParseFn infixRule = GetRule(parser.previous.type)->infix;
-		infixRule();
+		infixRule(canAssign);
 	}
+
+    if (canAssign && Match(TOKEN_EQUAL))
+    {
+        Error("Invalid assignment target.");
+    }
 }
 
 static ParseRule* GetRule(TokenType type)
@@ -305,6 +362,92 @@ static void Expression()
 	ParsePrecedence(PREC_ASSIGNMENT);
 }
 
+static void VarDeclaration()
+{
+	uint8_t global = ParseVariable("Expect variable name.");
+
+	if (Match(TOKEN_EQUAL))
+	{
+		Expression();
+	}
+	else
+	{
+		EmitByte(OP_NIL);
+	}
+	Consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+
+	DefineVariable(global);
+}
+
+static void ExpressionStatement()
+{
+    Expression();
+    Consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
+    EmitByte(OP_POP);
+}
+
+static void PrintStatement()
+{
+    Expression();
+    Consume(TOKEN_SEMICOLON, "Expect ';? after value.");
+    EmitByte(OP_PRINT);
+}
+
+static void Synchronize()
+{
+    parser.panicMode = false;
+
+    while (parser.current.type != TOKEN_EOF)
+    {
+        if (parser.previous.type == TOKEN_SEMICOLON) { return; }
+
+        switch (parser.current.type)
+        {
+            case TOKEN_CLASS:
+            case TOKEN_FUN:
+            case TOKEN_VAR:
+            case TOKEN_FOR:
+            case TOKEN_IF:
+            case TOKEN_WHILE:
+            case TOKEN_PRINT:
+            case TOKEN_RETURN:
+                return;
+
+            default:
+                // Do nothing.
+                ;
+        }
+
+        Advance();
+    }
+}
+
+static void Declaration()
+{
+    if (Match(TOKEN_VAR))
+    {
+        VarDeclaration();
+    }
+    else
+    {
+        Statement();
+    }
+
+    if (parser.panicMode) { Synchronize(); }
+}
+
+static void Statement()
+{
+    if (Match(TOKEN_PRINT))
+    {
+        PrintStatement();
+    }
+    else
+    {
+        ExpressionStatement();
+    }
+}
+
 bool Compile(const char* source, Chunk* chunk)
 {
 	InitScanner(source);
@@ -314,8 +457,12 @@ bool Compile(const char* source, Chunk* chunk)
 	parser.panicMode = false;
 
 	Advance();
-	Expression();
-	Consume(TOKEN_EOF, "Expect end of expression.");
+
+    while (!Match(TOKEN_EOF))
+    {
+        Declaration();
+    }
+
 	EndCompiler();
 	return !parser.hadError;
 }

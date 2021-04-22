@@ -130,6 +130,20 @@ static InterpretResult Run()
 			case OP_FALSE: Push(BOOL_VAL(false)); break;
             case OP_POP: Pop(); break;
 
+            case OP_GET_LOCAL:
+            {
+                uint8_t slot = READ_BYTE();
+                Push(vm.stack[slot]);
+                break;
+            }
+
+            case OP_SET_LOCAL:
+            {
+                uint8_t slot = READ_BYTE();
+                vm.stack[slot] = Peek(0);
+                break;
+            }
+
             case OP_GET_GLOBAL:
             {
                 ObjString* name = READ_STRING();

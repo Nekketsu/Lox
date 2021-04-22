@@ -28,6 +28,13 @@ static int SimpleInstruction(const char* name, int offset)
 	return offset + 1;
 }
 
+static int ByteInstruction(const char* name, Chunk* chunk, int offset)
+{
+    uint8_t slot = chunk->code[offset + 1];
+    printf("%-16s %4d\n", name, slot);
+    return offset + 2;
+}
+
 int DisassembleInstruction(Chunk* chunk, int offset)
 {
 	printf("%04d ", offset);
@@ -53,6 +60,10 @@ int DisassembleInstruction(Chunk* chunk, int offset)
 			return SimpleInstruction("OP_FALSE", offset);
         case OP_POP:
             return SimpleInstruction("OP_POP", offset);
+        case OP_GET_LOCAL:
+            return ByteInstruction("OP_GET_LOCAL", chunk, offset);
+        case OP_SET_LOCAL:
+            return ByteInstruction("OP_SET_LOCAL", chunk, offset);
         case OP_GET_GLOBAL:
             return ConstantInstruction("OP_GET_GLOBAL", chunk, offset);
         case OP_DEFINE_GLOBAL:

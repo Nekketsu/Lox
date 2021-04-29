@@ -67,6 +67,12 @@ void InitVM()
 {
 	ResetStack();
     vm.objects = NULL;
+    vm.bytesAllocated = 0;
+    vm.nextGC = 1024 * 1024;
+
+    vm.grayCount = 0;
+    vm.grayCapacity = 0;
+    vm.grayStack = NULL;
 
     InitTable(&vm.globals);
     InitTable(&vm.strings);
@@ -197,8 +203,8 @@ static bool IsFalsey(Value value)
 
 static void Concatenate()
 {
-    ObjString* b = AS_STRING(Pop());
-    ObjString* a = AS_STRING(Pop());
+    ObjString* b = AS_STRING(Peek(0));
+    ObjString* a = AS_STRING(Peek(1));
 
     int length = a->length + b->length;
     char* chars = ALLOCATE(char, length + 1);
@@ -207,6 +213,8 @@ static void Concatenate()
     chars[length] = '\0';
 
     ObjString* result = TakeString(chars, length);
+    Pop();
+    Pop();
     Push(OBJ_VAL(result));
 }
 

@@ -24,5 +24,7 @@ bool TableSet(Table* table, ObjString* key, Value value);
 bool TableDelete(Table* table, ObjString* key);
 void TableAddAll(Table* from, Table* to);
 ObjString* TableFindString(Table* table, const char* chars, int length, uint32_t hash);
+void TableRemoveWhite(Table* table);
+void MarkTable(Table* table);
 
 #endif

@@ -86,10 +86,18 @@ static void BlackenObject(Obj* object)
 
     switch (object->type)
     {
+        case OBJ_BOUND_METHOD:
+        {
+            ObjBoundMethod* bound = (ObjBoundMethod*)object;
+            MarkValue(bound->receiver);
+            MarkObject((Obj*)bound->method);
+            break;
+        }
         case OBJ_CLASS:
         {
             ObjClass* klass = (ObjClass*)object;
             MarkObject((Obj*)klass->name);
+            MarkTable(&klass->methods);
             break;
         }
 
@@ -136,8 +144,13 @@ static void FreeObject(Obj* object)
 
     switch (object->type)
     {
+        case OBJ_BOUND_METHOD:
+            FREE(ObjBoundMethod, object);
+            break;
         case OBJ_CLASS:
         {
+            ObjClass* klass = (ObjClass*)object;
+            FreeTable(&klass->methods);
             FREE(ObjClass, object);
             break;
         }
@@ -205,6 +218,7 @@ static void MarkRoots()
 
     MarkTable(&vm.globals);
     MarkCompilerRoots();
+    MarkObject((Obj*)vm.initString);
 }
 
 static void TraceReferences()

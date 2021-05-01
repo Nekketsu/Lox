@@ -77,6 +77,9 @@ void InitVM()
     InitTable(&vm.globals);
     InitTable(&vm.strings);
 
+    vm.initString = NULL;
+    vm.initString = CopyString("init", 4);
+
     DefineNative("clock", ClockNative);
 }
 
@@ -84,6 +87,7 @@ void FreeVM()
 {
     FreeTable(&vm.globals);
     FreeTable(&vm.strings);
+    vm.initString = NULL;
     FreeObjects();
 }
 
@@ -133,10 +137,24 @@ static bool CallValue(Value callee, int argCount)
     {
         switch (OBJ_TYPE(callee))
         {
+            case OBJ_BOUND_METHOD:
+                ObjBoundMethod* bound = AS_BOUND_METHOD(callee);
+                vm.stackTop[-argCount - 1] = bound->receiver;
+                return Call(bound->method, argCount);
             case OBJ_CLASS:
             {
                 ObjClass* klass = AS_CLASS(callee);
                 vm.stackTop[-argCount - 1] = OBJ_VAL(NewInstance(klass));
+                Value initializer;
+                if (TableGet(&klass->methods, vm.initString, &initializer))
+                {
+                    return Call(AS_CLOSURE(initializer), argCount);
+                }
+                else if (argCount != 0)
+                {
+                    RuntimeError("Expected 0 arguments but got %d.", argCount);
+                    return false;
+                }
                 return true;
             }
             case OBJ_CLOSURE:
@@ -157,6 +175,55 @@ static bool CallValue(Value callee, int argCount)
 
     RuntimeError("Can only call functions and classes.");
     return false;
+}
+
+static bool InvokeFromClass(ObjClass* klass, ObjString* name, int argCount)
+{
+    Value method;
+    if (!TableGet(&klass->methods, name, &method))
+    {
+        RuntimeError("Undefined property '%s'.", name->chars);
+        return false;
+    }
+    return Call(AS_CLOSURE(method), argCount);
+}
+
+static bool Invoke(ObjString* name, int argCount)
+{
+    Value receiver = Peek(argCount);
+
+    if (!IS_INSTANCE(receiver))
+    {
+        RuntimeError("Only instances have methods.");
+        return false;
+    }
+
+    ObjInstance* instance = AS_INSTANCE(receiver);
+
+    Value value;
+    if (TableGet(&instance->fields, name, &value))
+    {
+        vm.stackTop[-argCount - 1] = value;
+        return CallValue(value, argCount);
+    }
+
+    return InvokeFromClass(instance->klass, name, argCount);
+}
+
+static bool BindMethod(ObjClass* klass, ObjString* name)
+{
+    Value method;
+    if (!TableGet(&klass->methods, name, &method))
+    {
+        RuntimeError("Undefined property '%s'.", name->chars);
+        return false;
+    }
+
+    ObjBoundMethod* bound = NewBoundMethod(Peek(0), AS_CLOSURE(method));
+
+    Pop();
+    Push(OBJ_VAL(bound));
+    return true;
 }
 
 static ObjUpvalue* CaptureUpvalue(Value* local)
@@ -200,6 +267,14 @@ static void CloseUpvalues(Value* last)
         upvalue->location = &upvalue->closed;
         vm.openUpvalues = upvalue->next;
     }
+}
+
+static void DefineMethod(ObjString* name)
+{
+    Value method = Peek(0);
+    ObjClass* klass = AS_CLASS(Peek(1));
+    TableSet(&klass->methods, name, method);
+    Pop();
 }
 
 static bool IsFalsey(Value value)
@@ -357,8 +432,11 @@ static InterpretResult Run()
                     break;
                 }
 
-                RuntimeError("Undefined property '%s'.", name->chars);
-                return INTERPRET_RUNTIME_ERROR;
+                if (!BindMethod(instance->klass, name))
+                {
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                break;
             }
 
             case OP_SET_PROPERTY:
@@ -463,6 +541,18 @@ static InterpretResult Run()
                 break;
             }
 
+            case OP_INVOKE:
+            {
+                ObjString* method = READ_STRING();
+                int argCount = READ_BYTE();
+                if (!Invoke(method, argCount))
+                {
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                frame = &vm.frames[vm.frameCount - 1];
+                break;
+            }
+
             case OP_CLOSURE:
             {
                 ObjFunction* function = AS_FUNCTION(READ_CONSTANT());
@@ -512,6 +602,9 @@ static InterpretResult Run()
 
             case OP_CLASS:
                 Push(OBJ_VAL(NewClass(READ_STRING())));
+                break;
+            case OP_METHOD:
+                DefineMethod(READ_STRING());
                 break;
 		}
 	}

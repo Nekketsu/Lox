@@ -58,7 +58,9 @@ typedef struct
 
 typedef enum
 {
-    TYPE_FUNCITON,
+    TYPE_FUNCTION,
+    TYPE_INITIALIZER,
+    TYPE_METHOD,
     TYPE_SCRIPT
 } FunctionType;
 
@@ -74,9 +76,15 @@ typedef struct Compiler
     int scopeDepth;
 } Compiler;
 
+typedef struct ClassCompiler
+{
+    struct ClassCompiler* enclosing;
+} ClassCompiler;
+
 Parser parser;
 
 Compiler* current = NULL;
+ClassCompiler* currentClass = NULL;
 
 static Chunk* CurrentChunk()
 {
@@ -185,7 +193,15 @@ static int EmitJump(uint8_t instruction)
 
 static void EmitReturn()
 {
-    EmitByte(OP_NIL);
+    if (current->type == TYPE_INITIALIZER)
+    {
+        EmitBytes(OP_GET_LOCAL, 0);
+    }
+    else
+    {
+        EmitByte(OP_NIL);
+    }
+
 	EmitByte(OP_RETURN);
 }
 
@@ -239,8 +255,16 @@ static void InitCompiler(Compiler* compiler, FunctionType type)
     Local* local = &current->locals[current->localCount++];
     local->depth = 0;
     local->isCaptured = false;
-    local->name.start = "";
-    local->name.length = 0;
+    if (type != TYPE_FUNCTION)
+    {
+        local->name.start = "this";
+        local->name.length = 4;
+    }
+    else
+    {
+        local->name.start = "";
+        local->name.length = 0;
+    }
 }
 
 static ObjFunction* EndCompiler()
@@ -448,7 +472,7 @@ static uint8_t ArgumentList()
     return argCount;
 }
 
-static void And_(bool canAssign)
+static void And(bool canAssign)
 {
     int endJump = EmitJump(OP_JUMP_IF_FALSE);
 
@@ -501,6 +525,12 @@ static void Dot(bool canAssign)
         Expression();
         EmitBytes(OP_SET_PROPERTY, name);
     }
+    else if (Match(TOKEN_LEFT_PAREN))
+    {
+        uint8_t argCount = ArgumentList();
+        EmitBytes(OP_INVOKE, name);
+        EmitByte(argCount);
+    }
     else
     {
         EmitBytes(OP_GET_PROPERTY, name);
@@ -531,7 +561,7 @@ static void Number(bool canAssign)
 	EmitConstant(NUMBER_VAL(value));
 }
 
-static void Or_(bool canAssign)
+static void Or(bool canAssign)
 {
     int elseJump = EmitJump(OP_JUMP_IF_FALSE);
     int endJump = EmitJump(OP_JUMP);
@@ -586,6 +616,16 @@ static void Variable(bool canAssign)
     NamedVariable(parser.previous, canAssign);
 }
 
+static void This(bool canAssign)
+{
+    if (currentClass == NULL)
+    {
+        Error("Can't use 'this' outside of a class.");
+        return;
+    }
+    Variable(false);
+}
+
 static void Unary(bool canAssign)
 {
 	TokenType operatorType = parser.previous.type;
@@ -627,7 +667,7 @@ ParseRule rules[] =
 	[TOKEN_IDENTIFIER]    = { Variable, NULL,   PREC_NONE },
 	[TOKEN_STRING]        = { String,   NULL,   PREC_NONE },
 	[TOKEN_NUMBER]        = { Number,   NULL,   PREC_NONE },
-	[TOKEN_AND]           = { NULL,     And_,   PREC_AND },
+	[TOKEN_AND]           = { NULL,     And,    PREC_AND },
 	[TOKEN_CLASS]         = { NULL,     NULL,   PREC_NONE },
 	[TOKEN_ELSE]          = { NULL,     NULL,   PREC_NONE },
 	[TOKEN_FALSE]         = { Literal,  NULL,   PREC_NONE },
@@ -635,11 +675,11 @@ ParseRule rules[] =
 	[TOKEN_FUN]           = { NULL,     NULL,   PREC_NONE },
 	[TOKEN_IF]            = { NULL,     NULL,   PREC_NONE },
 	[TOKEN_NIL]           = { Literal,  NULL,   PREC_NONE },
-	[TOKEN_OR]            = { NULL,     Or_,    PREC_OR },
+	[TOKEN_OR]            = { NULL,     Or,     PREC_OR },
 	[TOKEN_PRINT]         = { NULL,     NULL,   PREC_NONE },
 	[TOKEN_RETURN]        = { NULL,     NULL,   PREC_NONE },
 	[TOKEN_SUPER]         = { NULL,     NULL,   PREC_NONE },
-	[TOKEN_THIS]          = { NULL,     NULL,   PREC_NONE },
+	[TOKEN_THIS]          = { This,     NULL,   PREC_NONE },
 	[TOKEN_TRUE]          = { Literal,  NULL,   PREC_NONE },
 	[TOKEN_VAR]           = { NULL,     NULL,   PREC_NONE },
 	[TOKEN_WHILE]         = { NULL,     NULL,   PREC_NONE },
@@ -733,24 +773,53 @@ static void Function(FunctionType type)
     }
 }
 
+static void Method()
+{
+    Consume(TOKEN_IDENTIFIER, "Expect method name.");
+    uint8_t constant = IdentifierConstant(&parser.previous);
+
+    FunctionType type = TYPE_METHOD;
+    if (parser.previous.length == 4 &&
+        memcmp(parser.previous.start, "init", 4) == 0)
+    {
+        type = TYPE_INITIALIZER;
+    }
+
+    Function(type);
+    EmitBytes(OP_METHOD, constant);
+}
+
 static void ClassDeclaration()
 {
     Consume(TOKEN_IDENTIFIER, "Expect class name.");
+    Token className = parser.previous;
     uint8_t nameConstant = IdentifierConstant(&parser.previous);
     DeclareVariable();
 
     EmitBytes(OP_CLASS, nameConstant);
     DefineVariable(nameConstant);
 
+    ClassCompiler classCompiler;
+    classCompiler.enclosing = currentClass;
+    currentClass = &classCompiler;
+
+    NamedVariable(className, false);
     Consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
+    while (!Check(TOKEN_RIGHT_BRACE) && !Check(TOKEN_EOF))
+    {
+        Method();
+    }
     Consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
+    EmitByte(OP_POP);
+
+    currentClass = currentClass->enclosing;
 }
 
 static void FunDeclaration()
 {
     uint8_t global = ParseVariable("Expect function name.");
     MarkInitialized();
-    Function(TYPE_FUNCITON);
+    Function(TYPE_FUNCTION);
     DefineVariable(global);
 }
 
@@ -875,6 +944,11 @@ static void ReturnStatement()
     }
     else
     {
+        if (current->type == TYPE_INITIALIZER)
+        {
+            Error("Can't return a value from an initializer.");
+        }
+
         Expression();
         Consume(TOKEN_SEMICOLON, "Expect ';' after return value.");
         EmitByte(OP_RETURN);

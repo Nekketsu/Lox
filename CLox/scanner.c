@@ -113,6 +113,7 @@ static void SkipWhitespace()
 				{
 					return;
 				}
+				break;
 
 			default:
 				return;
@@ -136,7 +137,7 @@ static TokenType IdentifierType()
 	switch (scanner.start[0])
 	{
 		case 'a': return CheckKeyword(1, 2, "nd", TOKEN_AND);
-		case 'c': return CheckKeyword(1, 4, "lass", TOKEN_AND);
+		case 'c': return CheckKeyword(1, 4, "lass", TOKEN_CLASS);
 		case 'e': return CheckKeyword(1, 3, "lse", TOKEN_ELSE);
 		case 'f':
 			if (scanner.current - scanner.start > 1)

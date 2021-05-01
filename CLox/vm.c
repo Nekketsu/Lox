@@ -133,6 +133,12 @@ static bool CallValue(Value callee, int argCount)
     {
         switch (OBJ_TYPE(callee))
         {
+            case OBJ_CLASS:
+            {
+                ObjClass* klass = AS_CLASS(callee);
+                vm.stackTop[-argCount - 1] = OBJ_VAL(NewInstance(klass));
+                return true;
+            }
             case OBJ_CLOSURE:
                 return Call(AS_CLOSURE(callee), argCount);
 
@@ -332,6 +338,46 @@ static InterpretResult Run()
                 break;
             }
 
+            case OP_GET_PROPERTY:
+            {
+                if (!IS_INSTANCE(Peek(0)))
+                {
+                    RuntimeError("Only instances have properties.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
+                ObjInstance* instance = AS_INSTANCE(Peek(0));
+                ObjString* name = READ_STRING();
+
+                Value value;
+                if (TableGet(&instance->fields, name, &value))
+                {
+                    Pop(); // Instance.
+                    Push(value);
+                    break;
+                }
+
+                RuntimeError("Undefined property '%s'.", name->chars);
+                return INTERPRET_RUNTIME_ERROR;
+            }
+
+            case OP_SET_PROPERTY:
+            {
+                if (!IS_INSTANCE(Peek(1)))
+                {
+                    RuntimeError("Only instances have fields.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
+                ObjInstance* instance = AS_INSTANCE(Peek(1));
+                TableSet(&instance->fields, READ_STRING(), Peek(0));
+
+                Value value = Pop();
+                Pop();
+                Push(value);
+                break;
+            }
+
 			case OP_EQUAL:
 			{
 				Value b = Pop();
@@ -463,6 +509,10 @@ static InterpretResult Run()
                 frame = &vm.frames[vm.frameCount - 1];
                 break;
 			}
+
+            case OP_CLASS:
+                Push(OBJ_VAL(NewClass(READ_STRING())));
+                break;
 		}
 	}
 

@@ -26,6 +26,13 @@ static Obj* AllocateObject(size_t size, ObjType type)
     return object;
 }
 
+ObjClass* NewClass(ObjString* name)
+{
+    ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
+    klass->name = name;
+    return klass;
+}
+
 ObjClosure* NewClosure(ObjFunction* function)
 {
     ObjUpvalue** upvalues = ALLOCATE(ObjUpvalue*, function->upvalueCount);
@@ -50,6 +57,14 @@ ObjFunction* NewFunction()
     function->name = NULL;
     InitChunk(&function->chunk);
     return function;
+}
+
+ObjInstance* NewInstance(ObjClass* klass)
+{
+    ObjInstance* instance = ALLOCATE_OBJ(ObjInstance, OBJ_INSTANCE);
+    instance->klass = klass;
+    InitTable(&instance->fields);
+    return instance;
 }
 
 ObjNative* NewNative(NativeFn function)
@@ -103,7 +118,7 @@ ObjString* CopyString(const char* chars, int length)
 {
     uint32_t hash = HashString(chars, length);
     ObjString* interned = TableFindString(&vm.strings, chars, length, hash);
-    if (interned  != NULL) { return interned; }
+    if (interned != NULL) { return interned; }
 
     char* heapChars = ALLOCATE(char, length + 1);
     memcpy(heapChars, chars, length);
@@ -135,17 +150,21 @@ void PrintObject(Value value)
 {
     switch (OBJ_TYPE(value))
     {
+        case OBJ_CLASS:
+            printf("%s", AS_CLASS(value)->name->chars);
+            break;
         case OBJ_CLOSURE:
             PrintFunction(AS_CLOSURE(value)->function);
             break;
         case OBJ_FUNCTION:
             PrintFunction(AS_FUNCTION(value));
             break;
-
+        case OBJ_INSTANCE:
+            printf("%s instance", AS_INSTANCE(value)->klass->name->chars);
+            break;
         case OBJ_NATIVE:
             printf("<native fn>");
             break;
-
         case OBJ_STRING:
             printf("%s", AS_CSTRING(value));
             break;

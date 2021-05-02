@@ -456,6 +456,17 @@ static InterpretResult Run()
                 break;
             }
 
+            case OP_GET_SUPER:
+            {
+                ObjString* name = READ_STRING();
+                ObjClass* superClass = AS_CLASS(Pop());
+                if (!BindMethod(superClass, name))
+                {
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                break;
+            }
+
 			case OP_EQUAL:
 			{
 				Value b = Pop();
@@ -480,12 +491,12 @@ static InterpretResult Run()
                 }
                 else
                 {
-                    RuntimeError("Operands must be two numbers or two strings.");
+                    RuntimeError(
+                        "Operands must be two numbers or two strings.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
             }
-            BINARY_OP(NUMBER_VAL, +); break;
 			case OP_SUBTRACT: BINARY_OP(NUMBER_VAL,  -); break;
 			case OP_MULTIPLY: BINARY_OP(NUMBER_VAL, *); break;
 			case OP_DIVIDE:	  BINARY_OP(NUMBER_VAL, /); break;
@@ -553,6 +564,19 @@ static InterpretResult Run()
                 break;
             }
 
+            case OP_SUPER_INVOKE:
+            {
+                ObjString* method = READ_STRING();
+                int argCount = READ_BYTE();
+                ObjClass* superclass = AS_CLASS(Pop());
+                if (!InvokeFromClass(superclass, method, argCount))
+                {
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                frame = &vm.frames[vm.frameCount - 1];
+                break;
+            }
+
             case OP_CLOSURE:
             {
                 ObjFunction* function = AS_FUNCTION(READ_CONSTANT());
@@ -602,6 +626,19 @@ static InterpretResult Run()
 
             case OP_CLASS:
                 Push(OBJ_VAL(NewClass(READ_STRING())));
+                break;
+            case OP_INHERIT:
+                Value superclass = Peek(1);
+                if (!IS_CLASS(superclass))
+                {
+                    RuntimeError("Superclass must be a class.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
+                ObjClass* subclass = AS_CLASS(Peek(0));
+                TableAddAll(&AS_CLASS(superclass)->methods,
+                            &subclass->methods);
+                Pop(); // Subclass.
                 break;
             case OP_METHOD:
                 DefineMethod(READ_STRING());
